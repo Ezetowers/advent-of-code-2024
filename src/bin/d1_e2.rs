@@ -1,6 +1,6 @@
 use log::*;
+use std::collections::HashMap;
 use std::error::Error;
-
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
@@ -15,7 +15,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let reader = BufReader::new(file);
 
     let mut first_list: Vec<i32> = Vec::new();
-    let mut second_list: Vec<i32> = Vec::new();
+    let mut second_list_hash: HashMap<i32, i32> = HashMap::new();
 
     for line in reader.lines() {
         let line = line?;
@@ -24,18 +24,17 @@ fn main() -> Result<(), Box<dyn Error>> {
             .map(|x| x.parse::<i32>().unwrap_or(0))
             .collect();
         first_list.push(v[0]);
-        second_list.push(v[1]);
+        second_list_hash
+            .entry(v[1])
+            .and_modify(|count| *count += 1)
+            .or_insert(1);
     }
-
-    first_list.sort();
-    second_list.sort();
 
     let n: usize = first_list.len();
-    let mut sum = 0;
+    let mut score = 0;
     for i in 0..n {
-        let difference = first_list[i] - second_list[i];
-        sum += difference.abs();
+        score += first_list[i] * *second_list_hash.entry(first_list[i]).or_default();
     }
-    info!("Day 1 - Exercise 1 result: {}", sum);
+    info!("Day 1 - Exercise 2 result: {}", score);
     Ok(())
 }
