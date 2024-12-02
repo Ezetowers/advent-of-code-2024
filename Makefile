@@ -16,12 +16,16 @@ build-debug:
 .PHONY: build
 
 run-d1-e1:
-	RUST_BACKTRACE=full RUST_LOG=${RUST_LOG} CONFIG_PATH=$(PWD)/configs/d1_e1.yaml $(PWD)/target/release/d1_e1
+	RUST_BACKTRACE=full RUST_LOG=${RUST_LOG} $(PWD)/target/release/d1_e1
 .PHONY: run-d1-e1
 
 run-d1-e2:
-	RUST_BACKTRACE=full RUST_LOG=${RUST_LOG} CONFIG_PATH=$(PWD)/configs/d1_e2.yaml $(PWD)/target/release/d1_e2
+	RUST_BACKTRACE=full RUST_LOG=${RUST_LOG} $(PWD)/target/release/d1_e2
 .PHONY: run-d1-e2
+
+run-d2-e1:
+	RUST_BACKTRACE=full RUST_LOG=${RUST_LOG} $(PWD)/target/release/d2_e1
+.PHONY: run-d2-e1
 
 clean:
 	cargo clean
