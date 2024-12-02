@@ -21,10 +21,9 @@ fn main() -> Result<(), Box<dyn Error>> {
             .map(|x| x.parse::<i32>().unwrap_or(0))
             .collect();
 
-        // We need to make three checks:
+        // We need to make two checks:
         // - The levels are either all increasing or all decreasing.
         // - Any two adjacent levels differ by at least one and at most three.
-
         let mut increasing = true;
         let mut decreasing = true;
         let mut adjacent_diff = true;
