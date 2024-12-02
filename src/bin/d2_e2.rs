@@ -77,6 +77,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    info!("[Day 2 - Exercise 1] Result: {}", valid_levels);
+    info!("[Day 2 - Exercise 2] Result: {}", valid_levels);
     Ok(())
 }
