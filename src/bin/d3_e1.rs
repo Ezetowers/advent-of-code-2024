@@ -1,15 +1,11 @@
-use log::*;
+use log2::*;
 use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-fn setup_logger() {
-    pretty_env_logger::init_timed();
-}
-
 fn main() -> Result<(), Box<dyn Error>> {
     let mul_operation = Vec::from(['m', 'u', 'l', '(']);
-    setup_logger();
+    let _log2 = log2::stdout().module(false).level("debug").start();
 
     let file = File::open("./input/d3.txt")?;
     let reader = BufReader::new(file);
@@ -31,7 +27,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         for i in 0..my_chars.len() {
             if mul_found && first_number_found && second_number_found {
                 total += first_number * second_number;
-                debug!(
+                info!(
                     "Bingo. mul({},{}) - Mutiplication: {} - Total: {}",
                     first_number,
                     second_number,
@@ -164,6 +160,17 @@ fn main() -> Result<(), Box<dyn Error>> {
                     continue;
                 }
             }
+        }
+
+        if mul_found && first_number_found && second_number_found {
+            total += first_number * second_number;
+            info!(
+                "Bingo. mul({},{}) - Mutiplication: {} - Total: {}",
+                first_number,
+                second_number,
+                first_number * second_number,
+                total
+            );
         }
     }
 
