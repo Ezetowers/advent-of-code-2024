@@ -1,8 +1,9 @@
 use log2::*;
 use std::error::Error;
 use std::fs::File;
-use std::io::SeekFrom;
 use std::io::{BufRead, BufReader};
+
+use advent_of_code_2024::common;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mul_operation = Vec::from(['m', 'u', 'l', '(']);
@@ -19,8 +20,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         let line = line?;
         let my_chars: Vec<_> = line.chars().collect();
 
-        let mut curr_pointer = 0;
-        let mut offset = 0;
+        let mut curr_pointer: usize = 0;
+        let mut offset: usize = 0;
 
         for i in 0..my_chars.len() {
             mul_activated.push(if do_state { 1 } else { 0 });
@@ -32,38 +33,27 @@ fn main() -> Result<(), Box<dyn Error>> {
                 do_state,
                 offset
             );
+
             if !do_state {
-                if my_chars[curr_pointer + offset] == do_operation[offset] {
-                    if offset == 3 {
-                        do_state = true;
-                        trace!("Do() found!");
-                        curr_pointer += offset + 1;
-                        offset = 0;
-                        continue;
-                    } else {
-                        offset += 1;
-                    }
-                } else {
-                    curr_pointer += offset + 1;
-                    offset = 0;
-                }
+                let sequence_found = common::check_sequence(
+                    &my_chars,
+                    &do_operation,
+                    &mut curr_pointer,
+                    &mut offset,
+                );
+                do_state = sequence_found;
+                continue;
             }
 
             if do_state {
-                if my_chars[curr_pointer + offset] == dont_operation[offset] {
-                    if offset == 6 {
-                        do_state = false;
-                        trace!("Don't() found!");
-                        curr_pointer += offset + 1;
-                        offset = 0;
-                        continue;
-                    } else {
-                        offset += 1;
-                    }
-                } else {
-                    curr_pointer += offset + 1;
-                    offset = 0;
-                }
+                let sequence_found = common::check_sequence(
+                    &my_chars,
+                    &dont_operation,
+                    &mut curr_pointer,
+                    &mut offset,
+                );
+                do_state = !sequence_found;
+                continue;
             }
         }
     }
@@ -78,8 +68,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         let line = line?;
         let my_chars: Vec<_> = line.chars().collect();
 
-        let mut curr_pointer = 0;
-        let mut offset = 0;
+        let mut curr_pointer: usize = 0;
+        let mut offset: usize = 0;
 
         let mut mul_found = false;
         let mut first_number_found = false;
@@ -116,21 +106,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             // Check if the string starts with mul(
             if !mul_found {
-                if my_chars[curr_pointer + offset] == mul_operation[offset] {
-                    if offset == 3 {
-                        mul_found = true;
-                        trace!("Mul found!");
-                        curr_pointer += offset + 1;
-                        offset = 0;
-                    } else {
-                        offset += 1;
-                    }
-                } else {
-                    // mul not found, advance pointers and start all over again
-                    // Only offset needs to be reset
-                    curr_pointer += offset + 1;
-                    offset = 0;
-                }
+                let sequence_found = common::check_sequence(
+                    &my_chars,
+                    &mul_operation,
+                    &mut curr_pointer,
+                    &mut offset,
+                );
+                mul_found = sequence_found;
                 continue;
             }
 

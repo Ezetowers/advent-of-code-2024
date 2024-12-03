@@ -3,9 +3,11 @@ use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
+use advent_of_code_2024::common;
+
 fn main() -> Result<(), Box<dyn Error>> {
     let mul_operation = Vec::from(['m', 'u', 'l', '(']);
-    let _log2 = log2::stdout().module(false).level("info").start();
+    let _log2 = log2::stdout().module(false).level("trace").start();
 
     let file = File::open("./input/d3.txt")?;
     let reader = BufReader::new(file);
@@ -15,8 +17,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         let line = line?;
         let my_chars: Vec<_> = line.chars().collect();
 
-        let mut curr_pointer = 0;
-        let mut offset = 0;
+        let mut curr_pointer: usize = 0;
+        let mut offset: usize = 0;
 
         let mut mul_found = false;
         let mut first_number_found = false;
@@ -49,21 +51,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             // Check if the string starts with mul(
             if !mul_found {
-                if my_chars[curr_pointer + offset] == mul_operation[offset] {
-                    if offset == 3 {
-                        mul_found = true;
-                        trace!("Mul found!");
-                        curr_pointer += offset + 1;
-                        offset = 0;
-                    } else {
-                        offset += 1;
-                    }
-                } else {
-                    // mul not found, advance pointers and start all over again
-                    // Only offset needs to be reset
-                    curr_pointer += offset + 1;
-                    offset = 0;
-                }
+                let sequence_found = common::check_sequence(
+                    &my_chars,
+                    &mul_operation,
+                    &mut curr_pointer,
+                    &mut offset,
+                );
+                mul_found = sequence_found;
                 continue;
             }
 
