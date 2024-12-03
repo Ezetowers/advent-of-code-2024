@@ -68,7 +68,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    info!("TUVIEJA BREAK");
+    info!("BREAK");
 
     let file2 = File::open("./input/d3.txt")?;
     let reader2 = BufReader::new(file2);
