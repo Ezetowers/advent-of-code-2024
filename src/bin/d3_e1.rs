@@ -5,7 +5,7 @@ use std::io::{BufRead, BufReader};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mul_operation = Vec::from(['m', 'u', 'l', '(']);
-    let _log2 = log2::stdout().module(false).level("debug").start();
+    let _log2 = log2::stdout().module(false).level("info").start();
 
     let file = File::open("./input/d3.txt")?;
     let reader = BufReader::new(file);
@@ -27,7 +27,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         for i in 0..my_chars.len() {
             if mul_found && first_number_found && second_number_found {
                 total += first_number * second_number;
-                info!(
+                debug!(
                     "Bingo. mul({},{}) - Mutiplication: {} - Total: {}",
                     first_number,
                     second_number,
@@ -39,9 +39,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                 second_number_found = false;
             }
 
-            debug!(
+            trace!(
                 "Index: {:#?} - Char: {:#?} - Cur Pointer: {:#?} - Offset: {:#?}",
-                i, my_chars[i], curr_pointer, offset
+                i,
+                my_chars[i],
+                curr_pointer,
+                offset
             );
 
             // Check if the string starts with mul(
@@ -49,7 +52,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 if my_chars[curr_pointer + offset] == mul_operation[offset] {
                     if offset == 3 {
                         mul_found = true;
-                        debug!("Mul found!");
+                        trace!("Mul found!");
                         curr_pointer += offset + 1;
                         offset = 0;
                     } else {
@@ -76,11 +79,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
 
                 if is_delimiter {
-                    debug!("First number - Delimiter found");
+                    trace!("First number - Delimiter found");
                     // Verify if there is no number to be parsed [mul(,123)]
                     // case
                     if offset == 0 {
-                        debug!("Number not found in mul directive. Resetting mul parsing");
+                        trace!("Number not found in mul directive. Resetting mul parsing");
                         curr_pointer += 1;
                         mul_found = false;
                         continue;
@@ -89,11 +92,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let number_vec = &my_chars[curr_pointer..curr_pointer + offset].to_vec();
                     let number_string: String = number_vec.into_iter().collect();
                     first_number = number_string.parse::<i32>().unwrap_or(0);
-                    debug!("First number parsed: {}", first_number);
+                    trace!("First number parsed: {}", first_number);
 
                     // Verify if the number processed has more than 3 digits
                     if first_number > 999 {
-                        debug!("Number is bigger than expected. Resetting mul parsing");
+                        trace!("Number is bigger than expected. Resetting mul parsing");
                         curr_pointer += 1;
                         mul_found = false;
                         continue;
@@ -124,11 +127,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
 
                 if is_delimiter {
-                    debug!("Second number - Delimiter found");
+                    trace!("Second number - Delimiter found");
                     // Verify if there is no number to be parsed [mul(,123)]
                     // case
                     if offset == 0 {
-                        debug!("Number not found in mul directive. Resetting mul parsing");
+                        trace!("Number not found in mul directive. Resetting mul parsing");
                         curr_pointer += 1;
                         mul_found = false;
                         first_number_found = false;
@@ -138,11 +141,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let number_vec = &my_chars[curr_pointer..curr_pointer + offset].to_vec();
                     let number_string: String = number_vec.into_iter().collect();
                     second_number = number_string.parse::<i32>().unwrap_or(0);
-                    debug!("Second number parsed: {}", second_number);
+                    trace!("Second number parsed: {}", second_number);
 
                     // Verify if the number processed has more than 3 digits
                     if second_number > 999 {
-                        debug!("Number is bigger than expected. Resetting mul parsing");
+                        trace!("Number is bigger than expected. Resetting mul parsing");
                         curr_pointer += 1;
                         mul_found = false;
                         first_number_found = false;
@@ -164,7 +167,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         if mul_found && first_number_found && second_number_found {
             total += first_number * second_number;
-            info!(
+            debug!(
                 "Bingo. mul({},{}) - Mutiplication: {} - Total: {}",
                 first_number,
                 second_number,
@@ -174,6 +177,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    info!("[Day 2 - Exercise 2] Result: {}", total);
+    info!("[Day 3 - Exercise 1] Result: {}", total);
     Ok(())
 }
