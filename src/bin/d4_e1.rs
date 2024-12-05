@@ -125,21 +125,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    // Right Diagonal
-    // for i in 0..x_len {
-    //     trace!("TROZ");
-    //     for j in 0..y_len - i {
-    //         trace!("Position 1: ({},{})", x_len - 1 - j - i, j);
-    //         trace!("Position 2: ({},{})", x_len - 1 - j, j + i);
-    //     }
-    // }
-
     for i in 0..x_len {
         let mut left_line = String::new();
         let mut right_line = String::new();
         for j in 0..y_len - i {
-            trace!("Position 1: ({},{})", x_len - 1 - j - i, j);
-            trace!("Position 2: ({},{})", x_len - 1 - j, j + i);
             left_line.push(input[x_len - 1 - j - i][j]);
             right_line.push(input[x_len - 1 - j][j + i]);
         }
