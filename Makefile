@@ -59,6 +59,10 @@ run-d6-e1:
 	RUST_BACKTRACE=full RUST_LOG=${RUST_LOG} $(PWD)/target/release/d6_e1
 .PHONY: run-d6-e1
 
+run-d6-e2:
+	RUST_BACKTRACE=full RUST_LOG=${RUST_LOG} $(PWD)/target/release/d6_e2
+.PHONY: run-d6-e2
+
 clean:
 	cargo clean
 .PHONY: clean
