@@ -168,6 +168,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         trace!("Matrix: {:?}", input[i]);
     }
 
-    info!("Day 5 - Exercise 2 result: {}", total);
+    info!("Day 6 - Exercise 1. Result: {}", total);
     Ok(())
 }
