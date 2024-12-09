@@ -17,7 +17,7 @@ struct Entry {
 /*---------------------------------------------------------------------------*/
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let _log2 = log2::stdout().module(false).level("trace").start();
+    let _log2 = log2::stdout().module(false).level("info").start();
 
     let mut total = 0;
     let file = File::open("./input/d5.txt")?;
@@ -75,7 +75,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             trace!("Line after processing: {:#?}", v);
             if !valid_line {
-                let mut line_fully_traversed = false;
+                let mut line_fully_traversed_and_valid = false;
                 while line_fully_traversed_and_valid == false {
                     line_fully_traversed_and_valid = true;
                     for i in 0..v.len() - 1 {
