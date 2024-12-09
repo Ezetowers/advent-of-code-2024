@@ -114,8 +114,12 @@ fn loop_found(input: &Vec<Vec<char>>, original_guardian: &Guardian) -> bool {
             None => out_of_bounds = true,
         }
         iterations += 1;
-        if iterations == 100000 {
-            // FIXME: Horrible way to detect a loop. Testing if everything else is working
+        if iterations == 10000 {
+            // FIXME: Horrible way to detect a loop, but given that the input is a
+            // 130x130 matrix, then you can constraint the iterations to the max
+            // loop that you can find with such a matrix. Finding this loop is not
+            // trivial, but testing different iteration numbers is easy enough
+            // 10000 is enough, lower numbers work too
             return true;
         }
     }
@@ -125,7 +129,7 @@ fn loop_found(input: &Vec<Vec<char>>, original_guardian: &Guardian) -> bool {
 /*---------------------------------------------------------------------------*/
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let _log2 = log2::stdout().module(false).level("trace").start();
+    let _log2 = log2::stdout().module(false).level("info").start();
 
     let file = File::open("./input/d6.txt")?;
     let reader = BufReader::new(file);
@@ -177,10 +181,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    // for i in 0..input_square_matrix_dimension {
-    //     trace!("Matrix: {:?}", input[i]);
-    // }
-
-    info!("Day 6 - Exercise 1. Result: {}", total);
+    info!("Day 6 - Exercise 2. Result: {}", total);
     Ok(())
 }
