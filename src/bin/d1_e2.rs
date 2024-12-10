@@ -5,6 +5,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 /*---------------------------------------------------------------------------*/
+
 fn setup_logger() -> log2::Handle {
     let log_level = match std::env::var("LOG_LEVEL") {
         Ok(val) => val,
