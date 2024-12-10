@@ -65,8 +65,6 @@ impl Vector {
 fn main() -> Result<(), Box<dyn Error>> {
     let _log2 = common::setup_logger();
     let reader = BufReader::new(common::setup_input()?);
-    let mut total = 0;
-    let mut input: Vec<Vec<char>> = Vec::new();
     let mut antennas_positions: HashMap<char, Vec<Point>> = HashMap::new();
 
     let mut row = 0;
@@ -83,13 +81,12 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
             col += 1;
         }
-        input.push(line.chars().collect());
         row += 1;
     }
 
     // NOTE: Assume the input is a square, meaning that all
     // rows has the same with, same with columns
-    let square_len: usize = input.len();
+    let square_len: usize = row.try_into().unwrap();
 
     // NOTE:
     // * An antinode occurs at any point that is perfectly in line with two antennas of the same frequency, but only when one of the antennas is twice as far away as the other
