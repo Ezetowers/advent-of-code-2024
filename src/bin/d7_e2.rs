@@ -79,6 +79,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         line_number += 1;
     }
 
-    info!("Day 7 - Exercise 1. Result: {}", total);
+    info!("Day 7 - Exercise 2. Result: {}", total);
     Ok(())
 }
