@@ -1,14 +1,5 @@
 use log2::*;
-
-/// Read lines of a file panicking on every possible error encounter. Store the content of the
-/// file in memory
-pub fn inefficient_read_lines(filename: &str) -> Vec<String> {
-    std::fs::read_to_string(filename)
-        .unwrap() // panic on possible file-reading errors
-        .lines() // split the string into an iterator of string slices
-        .map(String::from) // make each slice into a string
-        .collect() // gather them together into a vector
-}
+use std::fs::File;
 
 /// Receives a Vector with characters and validates
 /// if a sequence has been found
@@ -43,4 +34,20 @@ pub fn check_sequence(
         *offset = 0;
     }
     sequence_found
+}
+
+pub fn setup_logger() -> log2::Handle {
+    let log_level = match std::env::var("LOG_LEVEL") {
+        Ok(val) => val,
+        Err(_) => "info".to_string(),
+    };
+    log2::stdout().module(false).level(log_level).start()
+}
+
+pub fn setup_input() -> std::io::Result<File> {
+    let input_path = match std::env::var("INPUT_PATH") {
+        Ok(val) => val,
+        Err(_) => panic!("Invalid INPUT_PATH. Check if path exists"),
+    };
+    File::open(&input_path)
 }

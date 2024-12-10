@@ -1,9 +1,11 @@
 use log::*;
 use std::error::Error;
-use std::fs::File;
 use std::io::{BufRead, BufReader};
 
+use advent_of_code_2024::common;
+
 /*---------------------------------------------------------------------------*/
+
 #[derive(Debug, Default, PartialEq)]
 enum Direction {
     UP,
@@ -97,13 +99,13 @@ impl Guardian {
         }
     }
 }
+
 /*---------------------------------------------------------------------------*/
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let _log2 = log2::stdout().module(false).level("info").start();
+    let _log2 = common::setup_logger();
+    let reader = BufReader::new(common::setup_input()?);
 
-    let file = File::open("./input/d6.txt")?;
-    let reader = BufReader::new(file);
     let mut input: Vec<Vec<char>> = Vec::new();
     let guardian_array = ['^', '>', 'v', '<'];
     let mut guardian_found = false;

@@ -1,10 +1,9 @@
 use log::*;
-use std::error::Error;
-
 use std::collections::{HashMap, HashSet};
-
-use std::fs::File;
+use std::error::Error;
 use std::io::{BufRead, BufReader};
+
+use advent_of_code_2024::common;
 
 /*---------------------------------------------------------------------------*/
 
@@ -17,12 +16,10 @@ struct Entry {
 /*---------------------------------------------------------------------------*/
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let _log2 = log2::stdout().module(false).level("info").start();
+    let _log2 = common::setup_logger();
+    let reader = BufReader::new(common::setup_input()?);
 
     let mut total = 0;
-    let file = File::open("./input/d5.txt")?;
-    let reader = BufReader::new(file);
-
     let mut rules: HashMap<i32, Entry> = HashMap::new();
     let mut empty_line_found = false;
     for line in reader.lines() {

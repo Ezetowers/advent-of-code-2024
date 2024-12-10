@@ -1,13 +1,15 @@
 use log::*;
 use std::error::Error;
-use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let _log2 = log2::stdout().module(false).level("info").start();
+use advent_of_code_2024::common;
 
-    let file = File::open("./input/d7.txt")?;
-    let reader = BufReader::new(file);
+/*---------------------------------------------------------------------------*/
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let _log2 = common::setup_logger();
+    let reader = BufReader::new(common::setup_input()?);
+
     let mut total: u64 = 0;
     let mut line_number = 0;
 

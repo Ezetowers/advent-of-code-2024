@@ -1,16 +1,16 @@
 use log2::*;
 use std::error::Error;
-use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 use advent_of_code_2024::common;
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let mul_operation = Vec::from(['m', 'u', 'l', '(']);
-    let _log2 = log2::stdout().module(false).level("trace").start();
+/*---------------------------------------------------------------------------*/
 
-    let file = File::open("./input/d3.txt")?;
-    let reader = BufReader::new(file);
+fn main() -> Result<(), Box<dyn Error>> {
+    let _log2 = common::setup_logger();
+    let reader = BufReader::new(common::setup_input()?);
+
+    let mul_operation = Vec::from(['m', 'u', 'l', '(']);
     let mut total = 0;
 
     for line in reader.lines() {

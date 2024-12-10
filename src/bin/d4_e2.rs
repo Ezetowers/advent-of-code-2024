@@ -1,7 +1,10 @@
 use log2::*;
 use std::error::Error;
-use std::fs::File;
 use std::io::{BufRead, BufReader};
+
+use advent_of_code_2024::common;
+
+/*---------------------------------------------------------------------------*/
 
 fn count_matches(input: &Vec<Vec<char>>, x: usize, y: usize, string_to_match: &String) -> i32 {
     let mut first_x = String::new();
@@ -47,12 +50,13 @@ fn count_matches(input: &Vec<Vec<char>>, x: usize, y: usize, string_to_match: &S
     1
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let keyword = String::from("MAS");
+/*---------------------------------------------------------------------------*/
 
-    let _log2 = log2::stdout().module(false).level("info").start();
-    let file = File::open("./input/d4.txt")?;
-    let reader = BufReader::new(file);
+fn main() -> Result<(), Box<dyn Error>> {
+    let _log2 = common::setup_logger();
+    let reader = BufReader::new(common::setup_input()?);
+
+    let keyword = String::from("MAS");
     let mut input: Vec<Vec<char>> = Vec::new();
     let mut total = 0;
 

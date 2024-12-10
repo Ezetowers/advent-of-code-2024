@@ -1,18 +1,14 @@
 use log::*;
 use std::error::Error;
-
-use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-fn setup_logger() {
-    pretty_env_logger::init_timed();
-}
+use advent_of_code_2024::common;
+
+/*---------------------------------------------------------------------------*/
 
 fn main() -> Result<(), Box<dyn Error>> {
-    setup_logger();
-
-    let file = File::open("./input/d1.txt")?;
-    let reader = BufReader::new(file);
+    let _log2 = common::setup_logger();
+    let reader = BufReader::new(common::setup_input()?);
 
     let mut first_list: Vec<i32> = Vec::new();
     let mut second_list: Vec<i32> = Vec::new();
