@@ -4,6 +4,25 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 /*---------------------------------------------------------------------------*/
+
+fn setup_logger() -> log2::Handle {
+    let log_level = match std::env::var("LOG_LEVEL") {
+        Ok(val) => val,
+        Err(_) => "info".to_string(),
+    };
+    log2::stdout().module(false).level(log_level).start()
+}
+
+fn setup_input() -> std::io::Result<File> {
+    let input_path = match std::env::var("INPUT_PATH") {
+        Ok(val) => val,
+        Err(_) => panic!("Invalid INPUT_PATH. Check if path exists"),
+    };
+    File::open(&input_path)
+}
+
+/*---------------------------------------------------------------------------*/
+
 #[derive(Debug, Default, PartialEq, Copy, Clone)]
 enum Direction {
     UP,
@@ -129,10 +148,9 @@ fn loop_found(input: &Vec<Vec<char>>, original_guardian: &Guardian) -> bool {
 /*---------------------------------------------------------------------------*/
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let _log2 = log2::stdout().module(false).level("info").start();
+    let _log2 = setup_logger();
+    let reader = BufReader::new(setup_input()?);
 
-    let file = File::open("./input/d6.txt")?;
-    let reader = BufReader::new(file);
     let mut input: Vec<Vec<char>> = Vec::new();
     let guardian_array = ['^', '>', 'v', '<'];
     let mut guardian_found = false;
