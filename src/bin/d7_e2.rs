@@ -3,11 +3,29 @@ use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let _log2 = log2::stdout().module(false).level("info").start();
+/*---------------------------------------------------------------------------*/
+fn setup_logger() -> log2::Handle {
+    let log_level = match std::env::var("LOG_LEVEL") {
+        Ok(val) => val,
+        Err(_) => "info".to_string(),
+    };
+    log2::stdout().module(false).level(log_level).start()
+}
 
-    let file = File::open("./input/d7.txt")?;
-    let reader = BufReader::new(file);
+fn setup_input() -> std::io::Result<File> {
+    let input_path = match std::env::var("INPUT_PATH") {
+        Ok(val) => val,
+        Err(_) => panic!("Invalid INPUT_PATH. Check if path exists"),
+    };
+    File::open(&input_path)
+}
+
+/*---------------------------------------------------------------------------*/
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let _log2 = setup_logger();
+    let reader = BufReader::new(setup_input()?);
+
     let mut total: u64 = 0;
     let mut line_number = 0;
 

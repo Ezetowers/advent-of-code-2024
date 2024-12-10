@@ -1,10 +1,12 @@
 SHELL := /bin/bash
 PWD := $(shell pwd)
 
-RUST_LOG ?= info
 default: build
+LOG_LEVEL ?= info
 DAY ?= 7
 EJ ?= 2
+INPUT ?= "./input/d$(DAY).txt"
+INPUT_MINIMAL ?= "./input/d$(DAY)-minimal.txt"
 
 all:
 
@@ -17,8 +19,12 @@ build-debug:
 .PHONY: build
 
 run:
-	RUST_BACKTRACE=full RUST_LOG=${RUST_LOG} $(PWD)/target/release/d$(DAY)_e$(EJ)
+	RUST_BACKTRACE=full LOG_LEVEL=$(LOG_LEVEL) INPUT_PATH=$(INPUT) $(PWD)/target/release/d$(DAY)_e$(EJ)
 .PHONY: run
+
+run-minimal:
+	RUST_BACKTRACE=full LOG_LEVEL=$(LOG_LEVEL) INPUT_PATH=$(INPUT_MINIMAL) $(PWD)/target/release/d$(DAY)_e$(EJ)
+.PHONY: run-minimal
 
 clean:
 	cargo clean
