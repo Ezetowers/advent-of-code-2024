@@ -1,25 +1,8 @@
 use log2::*;
 use std::error::Error;
-use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-/*---------------------------------------------------------------------------*/
-
-fn setup_logger() -> log2::Handle {
-    let log_level = match std::env::var("LOG_LEVEL") {
-        Ok(val) => val,
-        Err(_) => "info".to_string(),
-    };
-    log2::stdout().module(false).level(log_level).start()
-}
-
-fn setup_input() -> std::io::Result<File> {
-    let input_path = match std::env::var("INPUT_PATH") {
-        Ok(val) => val,
-        Err(_) => panic!("Invalid INPUT_PATH. Check if path exists"),
-    };
-    File::open(&input_path)
-}
+use advent_of_code_2024::common;
 
 /*---------------------------------------------------------------------------*/
 
@@ -70,8 +53,8 @@ fn count_matches(input: &Vec<Vec<char>>, x: usize, y: usize, string_to_match: &S
 /*---------------------------------------------------------------------------*/
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let _log2 = setup_logger();
-    let reader = BufReader::new(setup_input()?);
+    let _log2 = common::setup_logger();
+    let reader = BufReader::new(common::setup_input()?);
 
     let keyword = String::from("MAS");
     let mut input: Vec<Vec<char>> = Vec::new();
