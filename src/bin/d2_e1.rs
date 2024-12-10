@@ -3,15 +3,28 @@ use std::error::Error;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-fn setup_logger() {
-    pretty_env_logger::init_timed();
+/*---------------------------------------------------------------------------*/
+fn setup_logger() -> log2::Handle {
+    let log_level = match std::env::var("LOG_LEVEL") {
+        Ok(val) => val,
+        Err(_) => "info".to_string(),
+    };
+    log2::stdout().module(false).level(log_level).start()
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
-    setup_logger();
+fn setup_input() -> std::io::Result<File> {
+    let input_path = match std::env::var("INPUT_PATH") {
+        Ok(val) => val,
+        Err(_) => panic!("Invalid INPUT_PATH. Check if path exists"),
+    };
+    File::open(&input_path)
+}
 
-    let file = File::open("./input/d2.txt")?;
-    let reader = BufReader::new(file);
+/*---------------------------------------------------------------------------*/
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let _log2 = setup_logger();
+    let reader = BufReader::new(setup_input()?);
 
     let mut valid_levels = 0;
     for line in reader.lines() {
