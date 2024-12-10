@@ -3,8 +3,8 @@ PWD := $(shell pwd)
 
 RUST_LOG ?= info
 default: build
-DAY ?= 8
-EJ ?= 1
+DAY ?= 7
+EJ ?= 2
 
 all:
 
