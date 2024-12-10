@@ -1,6 +1,5 @@
 use log::*;
 use std::error::Error;
-use std::fs::File;
 use std::io::{BufRead, BufReader};
 
 use advent_of_code_2024::common;
