@@ -5,12 +5,31 @@ use std::io::{BufRead, BufReader};
 
 use advent_of_code_2024::common;
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let mul_operation = Vec::from(['m', 'u', 'l', '(']);
-    let _log2 = log2::stdout().module(false).level("trace").start();
+/*---------------------------------------------------------------------------*/
 
-    let file = File::open("./input/d3.txt")?;
-    let reader = BufReader::new(file);
+fn setup_logger() -> log2::Handle {
+    let log_level = match std::env::var("LOG_LEVEL") {
+        Ok(val) => val,
+        Err(_) => "info".to_string(),
+    };
+    log2::stdout().module(false).level(log_level).start()
+}
+
+fn setup_input() -> std::io::Result<File> {
+    let input_path = match std::env::var("INPUT_PATH") {
+        Ok(val) => val,
+        Err(_) => panic!("Invalid INPUT_PATH. Check if path exists"),
+    };
+    File::open(&input_path)
+}
+
+/*---------------------------------------------------------------------------*/
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let _log2 = setup_logger();
+    let reader = BufReader::new(setup_input()?);
+
+    let mul_operation = Vec::from(['m', 'u', 'l', '(']);
     let mut total = 0;
 
     for line in reader.lines() {
