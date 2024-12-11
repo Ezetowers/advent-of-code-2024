@@ -35,8 +35,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut right_index = disk.len() - 1;
     loop {
-        trace!("Disk: {:?}", disk);
-
         while disk[right_index] == "." {
             right_index -= 1;
         }
@@ -44,14 +42,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         let current_id = disk[right_index].clone();
         let right_bound = right_index;
-        let mut left_bound = right_index - 1;
+        let mut left_bound = right_index;
         while left_bound != 0 && disk[left_bound] == current_id {
             left_bound -= 1;
         }
 
-        if left_bound == 0 {
-            break;
-        }
         right_index = left_bound;
 
         trace!("Left bound: {}", left_bound);
@@ -64,12 +59,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                 empty_space = 0;
             }
 
-            if i == left_bound {
+            if i > left_bound {
+                trace!("ID {} cannot be moved, skipping it", current_id);
                 break;
             }
 
             if empty_space == current_id_empty_space {
-                trace!("Current Index: {}", i);
+                debug!("Value to be moved: {} - Current Index: {}", current_id, i);
                 for j in 0..current_id_empty_space {
                     disk[i + j - empty_space + 1] = disk[left_bound + 1 + j].clone();
                     disk[left_bound + 1 + j] = ".".to_string();
@@ -77,20 +73,26 @@ fn main() -> Result<(), Box<dyn Error>> {
                 break;
             }
         }
+
+        if left_bound == 0 {
+            break;
+        }
     }
 
     let mut checksum: u64 = 0;
+    debug!("Disk: {:?}", disk);
     for i in 0..disk.len() {
         if disk[i] == "." {
             continue;
         }
 
         let num = disk[i].parse::<u64>().unwrap_or(0);
+        let to_sum = i as u64 * num as u64;
+        checksum += to_sum;
         debug!(
-            "ID: {} - Number: {} - Partial checksum: {}",
-            i, num, checksum
+            "ID: {} - Number: {} - To sum: {} - Partial checksum: {}",
+            i, num, to_sum, checksum
         );
-        checksum += i as u64 * num as u64;
     }
 
     info!("Day 9 - Exercise 2. Result: {}", checksum);
