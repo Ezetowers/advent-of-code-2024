@@ -33,6 +33,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         trace!("Input: {}", line);
     }
 
+    debug!("Disk before processing: {:?}", disk);
     let mut right_index = disk.len() - 1;
     loop {
         while disk[right_index] == "." {
@@ -80,7 +81,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let mut checksum: u64 = 0;
-    debug!("Disk: {:?}", disk);
+    debug!("Disk after processing: {:?}", disk);
     for i in 0..disk.len() {
         if disk[i] == "." {
             continue;
