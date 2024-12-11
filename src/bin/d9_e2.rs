@@ -29,49 +29,70 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
                 file_block = true;
             }
-            trace!("Char: {}", i);
         }
         trace!("Input: {}", line);
     }
 
-    let mut still_values_to_move = true;
-    let mut left_index = 0;
     let mut right_index = disk.len() - 1;
-    while still_values_to_move {
-        while disk[left_index] != "." {
-            left_index += 1;
-        }
+    loop {
+        trace!("Disk: {:?}", disk);
 
         while disk[right_index] == "." {
             right_index -= 1;
         }
+        trace!("Right Index: {}", right_index);
 
-        if left_index >= right_index {
-            still_values_to_move = false;
-            continue;
+        let current_id = disk[right_index].clone();
+        let right_bound = right_index;
+        let mut left_bound = right_index - 1;
+        while left_bound != 0 && disk[left_bound] == current_id {
+            left_bound -= 1;
         }
 
-        let aux = disk[right_index].clone();
-        disk[right_index] = disk[left_index].clone();
-        disk[left_index] = aux;
+        if left_bound == 0 {
+            break;
+        }
+        right_index = left_bound;
+
+        trace!("Left bound: {}", left_bound);
+        let current_id_empty_space = right_bound - left_bound;
+        let mut empty_space = 0;
+        for i in 0..disk.len() {
+            if disk[i] == "." {
+                empty_space += 1;
+            } else {
+                empty_space = 0;
+            }
+
+            if i == left_bound {
+                break;
+            }
+
+            if empty_space == current_id_empty_space {
+                trace!("Current Index: {}", i);
+                for j in 0..current_id_empty_space {
+                    disk[i + j - empty_space + 1] = disk[left_bound + 1 + j].clone();
+                    disk[left_bound + 1 + j] = ".".to_string();
+                }
+                break;
+            }
+        }
     }
 
     let mut checksum: u64 = 0;
     for i in 0..disk.len() {
         if disk[i] == "." {
-            break;
+            continue;
         }
 
         let num = disk[i].parse::<u64>().unwrap_or(0);
-        trace!(
+        debug!(
             "ID: {} - Number: {} - Partial checksum: {}",
-            i,
-            num,
-            checksum
+            i, num, checksum
         );
         checksum += i as u64 * num as u64;
     }
 
-    info!("Day 9 - Exercise 1. Result: {}", checksum);
+    info!("Day 9 - Exercise 2. Result: {}", checksum);
     Ok(())
 }
