@@ -12,39 +12,38 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut total = 0;
 
     let mut id = 0;
-    let mut disk: Vec<char> = Vec::new();
+    let mut disk: Vec<String> = Vec::new();
     let mut file_block = true;
     for line in reader.lines() {
         let line = line?;
         for i in line.chars().collect::<Vec<_>>().iter() {
             if file_block {
                 for _ in 0..i.to_string().parse::<i32>()? {
-                    disk.push(id.to_string().chars().collect::<Vec<_>>()[0]);
+                    disk.push(id.to_string());
                 }
 
                 file_block = false;
                 id += 1;
             } else {
                 for _ in 0..i.to_string().parse::<i32>()? {
-                    disk.push('.');
+                    disk.push('.'.to_string());
                 }
                 file_block = true;
             }
             trace!("Char: {}", i);
         }
         trace!("Input: {}", line);
-        trace!("Disk: {}", disk.clone().into_iter().collect::<String>());
     }
 
     let mut still_values_to_move = true;
     let mut left_index = 0;
     let mut right_index = disk.len() - 1;
     while still_values_to_move {
-        while disk[left_index] != '.' {
+        while disk[left_index] != "." {
             left_index += 1;
         }
 
-        while disk[right_index] == '.' {
+        while disk[right_index] == "." {
             right_index -= 1;
         }
 
@@ -53,22 +52,19 @@ fn main() -> Result<(), Box<dyn Error>> {
             continue;
         }
 
-        let aux = disk[right_index];
-        disk[right_index] = disk[left_index];
+        let aux = disk[right_index].clone();
+        disk[right_index] = disk[left_index].clone();
         disk[left_index] = aux;
-        trace!("Disk: {}", disk.clone().into_iter().collect::<String>());
+        // trace!("Disk: {}", disk.clone().into_iter().collect::<String>());
     }
 
     let mut checksum: u64 = 0;
     for i in 0..disk.len() {
-        if disk[i] == '.' {
+        if disk[i] == "." {
             break;
         }
 
-        let num = match char::to_digit(disk[i], 10) {
-            Some(num) => num,
-            None => panic!("This should not happen"),
-        };
+        let num = disk[i].parse::<u64>().unwrap_or(0);
         trace!(
             "ID: {} - Number: {} - Partial checksum: {}",
             i,
