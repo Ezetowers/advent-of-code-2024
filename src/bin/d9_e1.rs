@@ -55,7 +55,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         let aux = disk[right_index].clone();
         disk[right_index] = disk[left_index].clone();
         disk[left_index] = aux;
-        // trace!("Disk: {}", disk.clone().into_iter().collect::<String>());
     }
 
     let mut checksum: u64 = 0;
