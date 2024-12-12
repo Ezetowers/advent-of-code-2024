@@ -15,7 +15,7 @@ fn blink(input: &Vec<u64>) -> Vec<u64> {
             continue;
         }
 
-        // If the stone is engraved with a number that has an even number of digits, it is replaced by two stones. The left half of the digits are engraved on the new left stone, and the right half of the digits are engraved on the new right stone. (The new numbers don't keep extra leading zeroes: 1000 would become stones 10 and 0.)
+        // Rule 2: If the stone is engraved with a number that has an even number of digits, it is replaced by two stones. The left half of the digits are engraved on the new left stone, and the right half of the digits are engraved on the new right stone. (The new numbers don't keep extra leading zeroes: 1000 would become stones 10 and 0.)
         let string_number = number.to_string();
         if string_number.len() % 2 == 0 {
             let first_number_string = &string_number[0..=string_number.len() / 2 - 1];
@@ -35,7 +35,7 @@ fn blink(input: &Vec<u64>) -> Vec<u64> {
             continue;
         }
 
-        // If none of the other rules apply, the stone is replaced by a new stone; the old stone's number multiplied by 2024 is engraved on the new stone.
+        // Default: If none of the other rules apply, the stone is replaced by a new stone; the old stone's number multiplied by 2024 is engraved on the new stone.
         after_blink.push(number * 2024 as u64);
     }
 
@@ -60,11 +60,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         // NOTE: The input only has line
         break;
     }
-
-    // NOTE:: Exercise rules
-    // If the stone is engraved with the number 0, it is replaced by a stone engraved with the number 1.
-    // If the stone is engraved with a number that has an even number of digits, it is replaced by two stones. The left half of the digits are engraved on the new left stone, and the right half of the digits are engraved on the new right stone. (The new numbers don't keep extra leading zeroes: 1000 would become stones 10 and 0.)
-    // If none of the other rules apply, the stone is replaced by a new stone; the old stone's number multiplied by 2024 is engraved on the new stone.
 
     // Input debugging
     trace!("Input: {:?}", input);
