@@ -15,7 +15,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut file_block = true;
     for line in reader.lines() {
         let line = line?;
-        for i in line.chars().collect::<Vec<_>>().iter() {
+        for i in line.chars() {
             if file_block {
                 for _ in 0..i.to_string().parse::<i32>()? {
                     disk.push(id.to_string());
