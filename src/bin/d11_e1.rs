@@ -47,7 +47,6 @@ fn blink(input: &Vec<u64>) -> Vec<u64> {
 fn main() -> Result<(), Box<dyn Error>> {
     let _log2 = common::setup_logger();
     let reader = BufReader::new(common::setup_input()?);
-    let mut total = 0;
     let mut input: Vec<u64> = Vec::new();
 
     for line in reader.lines() {
