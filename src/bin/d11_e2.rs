@@ -93,6 +93,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         total_stones += v;
     }
 
-    info!("Day 11 - Exercise 1. Result: {}", total_stones);
+    info!("Day 11 - Exercise 2. Result: {}", total_stones);
     Ok(())
 }
