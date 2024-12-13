@@ -49,6 +49,8 @@ fn find_region(
         current_position,
     );
 
+    // TODO: I know these two fors with duplicated code can be made with just one
+    // Change it after D12-E2 is solved
     for index in -1..=1 {
         if x as i16 + index < 0 || x as i16 + index >= input.len() as i16 {
             continue;
