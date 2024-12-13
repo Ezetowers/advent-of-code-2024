@@ -50,10 +50,10 @@ fn find_region(
     );
 
     for index in -1..=1 {
-        if x as i8 + index < 0 || x as i8 + index >= input.len() as i8 {
+        if x as i16 + index < 0 || x as i16 + index >= input.len() as i16 {
             continue;
         }
-        let next_x = (x as i8 + index) as usize;
+        let next_x = (x as i16 + index) as usize;
 
         if index == 0 {
             continue;
@@ -79,10 +79,10 @@ fn find_region(
     }
 
     for index in -1..=1 {
-        if y as i8 + index < 0 || y as i8 + index >= input.len() as i8 {
+        if y as i16 + index < 0 || y as i16 + index >= input.len() as i16 {
             continue;
         }
-        let next_y = (y as i8 + index) as usize;
+        let next_y = (y as i16 + index) as usize;
 
         if index == 0 {
             continue;
