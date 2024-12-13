@@ -85,14 +85,16 @@ fn main() -> Result<(), Box<dyn Error>> {
         for (_, v) in previous_stones.iter() {
             partial_stones += v;
         }
-        debug!("[BLINK {}] Partial Stones: {:?}", i, partial_stones);
+        debug!(
+            "[BLINK {}] Partial Stones: {:?}",
+            i,
+            previous_stones.values().fold(0, |acc, &x| acc + x)
+        );
     }
 
-    let mut total_stones = 0;
-    for (_k, v) in previous_stones.iter() {
-        total_stones += v;
-    }
-
-    info!("Day 11 - Exercise 2. Result: {}", total_stones);
+    info!(
+        "Day 11 - Exercise 2. Result: {}",
+        previous_stones.values().fold(0, |acc, &x| acc + x)
+    );
     Ok(())
 }
