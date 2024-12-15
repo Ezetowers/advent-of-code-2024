@@ -6,7 +6,7 @@ use advent_of_code_2024::common;
 
 /*---------------------------------------------------------------------------*/
 
-const GRID_SIZE: usize = 15;
+const GRID_SIZE: usize = 300;
 
 /*---------------------------------------------------------------------------*/
 
@@ -95,30 +95,13 @@ impl Arrow {
         position
     }
 
-    fn advance(&mut self) -> bool {
+    fn advance(&mut self) {
         match self.direction {
-            Direction::RIGHT => {
-                self.position.1 += 1;
-                return true;
-            }
-            Direction::DOWN => {
-                self.position.0 += 1;
-                return false;
-            }
-            Direction::LEFT => {
-                if self.position.1 == 0 {
-                    return false;
-                }
-                self.position.1 -= 1;
-            }
-            Direction::UP => {
-                if self.position.0 == 0 {
-                    return false;
-                }
-                self.position.0 -= 1;
-            }
+            Direction::RIGHT => self.position.1 += 1,
+            Direction::DOWN => self.position.0 += 1,
+            Direction::LEFT => self.position.1 -= 1,
+            Direction::UP => self.position.0 -= 1,
         }
-        true
     }
 }
 
@@ -219,6 +202,7 @@ fn amount_sides(region: &Vec<Element>, grid: &mut [[u8; GRID_SIZE]; GRID_SIZE]) 
         if arrow.turns != 0 && arrow == first_arrow {
             break;
         }
+
         // Mark path that was traversed
         grid[arrow.position.0][arrow.position.1] += 1;
         arrow.advance();
@@ -401,6 +385,17 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
             sides += result;
         }
+
+        // NOTE: This is not gonna work
+        for x in 0..GRID_SIZE {
+            for y in 0..GRID_SIZE {
+                if grid[x][y] == 3 {
+                    info!("Interconnected area found. Sum 2");
+                    sides += 2;
+                }
+            }
+        }
+
         total += area * sides as usize;
         info!(
             "Region: {} - Area: {} - Sides: {} - Price: {}",
