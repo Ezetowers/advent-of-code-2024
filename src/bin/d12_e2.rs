@@ -46,12 +46,36 @@ impl Arrow {
         }
     }
 
-    fn turn(&mut self) {
+    fn turn(&mut self, grid: &[[i32; 30]; 30]) {
         match self.direction {
-            Direction::RIGHT => self.direction = Direction::DOWN,
-            Direction::DOWN => self.direction = Direction::LEFT,
-            Direction::LEFT => self.direction = Direction::UP,
-            Direction::UP => self.direction = Direction::RIGHT,
+            Direction::RIGHT => {
+                if grid[self.position.0 - 1][self.position.1] == 1 {
+                    self.direction = Direction::UP;
+                } else {
+                    self.direction = Direction::DOWN;
+                }
+            }
+            Direction::DOWN => {
+                if grid[self.position.0][self.position.1 - 1] == 1 {
+                    self.direction = Direction::LEFT;
+                } else {
+                    self.direction = Direction::RIGHT;
+                }
+            }
+            Direction::LEFT => {
+                if grid[self.position.0 - 1][self.position.1] == 1 {
+                    self.direction = Direction::UP;
+                } else {
+                    self.direction = Direction::DOWN;
+                }
+            }
+            Direction::UP => {
+                if grid[self.position.0][self.position.1 - 1] == 1 {
+                    self.direction = Direction::LEFT;
+                } else {
+                    self.direction = Direction::RIGHT;
+                }
+            }
         }
         self.turns += 1;
     }
@@ -187,20 +211,20 @@ fn amount_sides(region: &Vec<Element>) -> u32 {
         match arrow.next() {
             Some(position) => next_position = position,
             None => {
-                arrow.turn();
+                arrow.turn(&grid);
                 continue;
             }
         }
 
         if grid[next_position.0][next_position.1] == 0 {
-            arrow.turn();
+            arrow.turn(&grid);
             continue;
         }
 
-        arrow.advance();
-        if arrow == first_arrow {
+        if arrow.turns != 0 && arrow == first_arrow {
             break;
         }
+        arrow.advance();
     }
 
     arrow.turns
@@ -360,11 +384,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     for region in regions.iter() {
         let area = region.1.len();
         let sides = amount_sides(&region.1);
-        info!(
-            "Region: {} - Area: {} - Perimeter: {}",
-            region.0, area, sides
-        );
         total += area * sides as usize;
+        info!(
+            "Region: {} - Area: {} - Perimeter: {} - Price: {}",
+            region.0,
+            area,
+            sides,
+            area * sides as usize,
+        );
     }
 
     info!("Day 12 - Exercise 1. Result: {}", total);
