@@ -4,7 +4,7 @@ PWD := $(shell pwd)
 default: build
 LOG_LEVEL ?= info
 DAY ?= 14
-EJ ?= 1
+EJ ?= 2
 INPUT ?= "./input/d$(DAY).txt"
 INPUT_MINIMAL ?= "./input/d$(DAY)-minimal.txt"
 

@@ -54,11 +54,9 @@ impl Robot {
 fn main() -> Result<(), Box<dyn Error>> {
     let _log2 = common::setup_logger();
     let reader = BufReader::new(common::setup_input()?);
-    let mut total = 0;
     let mut robots: Vec<Robot> = Vec::new();
 
     for line in reader.lines() {
-        total += 1;
         let line = line?;
         let elements: Vec<&str> = line.split(" ").collect();
 
@@ -86,68 +84,40 @@ fn main() -> Result<(), Box<dyn Error>> {
         trace!("{:?}", robots[i]);
     }
 
+    // NOTE: I found the answer to this exercise in a visual way. First I detected that
+    // at certain positions, a kind of column was displayed. This kind of column was
+    // found at positions 3, 104, 205, etc.
+    // With this idea in mind, I only printed these iterations and found that in iteration
+    // 6770, the tree was displayed. Since I started the count in 0, the amount of ticks
+    // associated with the tree is 6771
+
     // Move those robots
-    for _ in 0..100 {
+    for index in 0..10000 {
+        let mut grid = [['-'; TALL_LIMIT as usize]; WIDE_LIMIT as usize];
         for i in 0..robots.len() {
             robots[i].tick();
             trace!("[Index {}] {:?}", i, robots[i]);
         }
-    }
+        // Create the grid
+        for i in 0..robots.len() {
+            if (index - 3) % 101 == 0 {
+                grid[robots[i].position.1 as usize][robots[i].position.0 as usize] = 'X';
+            }
+        }
 
-    // Create the grid
-    let mut grid = [[0; TALL_LIMIT as usize]; WIDE_LIMIT as usize];
-    for i in 0..robots.len() {
-        grid[robots[i].position.1 as usize][robots[i].position.0 as usize] += 1;
-    }
-    for x in 0..WIDE_LIMIT as usize {
-        debug!("{:?}", grid[x]);
-    }
-
-    // Analyze the quadrants
-    // -----------------
-    // |       |       |
-    // |   1   |   2   |
-    // |       |       |
-    // -----------------
-    // |       |       |
-    // |   3   |   4   |
-    // |       |       |
-    // -----------------
-    let mut quadrants = vec![0; 4];
-
-    // Quadrant 1
-    for x in 0..=WIDE_LIMIT / 2 - 1 {
-        for y in 0..=TALL_LIMIT / 2 - 1 {
-            quadrants[0] += grid[x as usize][y as usize];
+        if (index - 3) % 101 != 0 {
+            continue;
+        }
+        // Print the grid
+        info!("Tick {}", index + 1);
+        for x in 0..WIDE_LIMIT as usize {
+            let mut row_as_string: String = String::new();
+            for y in 0..TALL_LIMIT as usize {
+                row_as_string.push(grid[x][y]);
+            }
+            debug!("{:?}", row_as_string);
         }
     }
 
-    // Quadrant 2
-    for x in 0..=WIDE_LIMIT / 2 - 1 {
-        for y in TALL_LIMIT / 2 + 1..TALL_LIMIT {
-            quadrants[1] += grid[x as usize][y as usize];
-        }
-    }
-
-    // Quadrant 3
-    for x in WIDE_LIMIT / 2 + 1..WIDE_LIMIT {
-        for y in 0..=TALL_LIMIT / 2 - 1 {
-            quadrants[2] += grid[x as usize][y as usize];
-        }
-    }
-
-    // Quadrant 4
-    for x in WIDE_LIMIT / 2 + 1..WIDE_LIMIT {
-        for y in TALL_LIMIT / 2 + 1..TALL_LIMIT {
-            quadrants[3] += grid[x as usize][y as usize];
-        }
-    }
-
-    debug!("Quadrants: {:?}", quadrants);
-    total = quadrants[0];
-    for i in 1..quadrants.len() {
-        total = total * quadrants[i];
-    }
-    info!("Day 14 - Exercise 1. Result: {}", total);
     Ok(())
 }
