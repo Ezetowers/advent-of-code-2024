@@ -406,6 +406,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         );
     }
 
-    info!("Day 12 - Exercise 1. Result: {}", total);
+    info!("Day 12 - Exercise 2. Result: {}", total);
     Ok(())
 }
