@@ -1,9 +1,12 @@
 use log::*;
-use std::collections::HashSet;
 use std::error::Error;
 use std::io::{BufRead, BufReader};
 
 use advent_of_code_2024::common;
+
+/*---------------------------------------------------------------------------*/
+
+const GRID_SIZE: usize = 15;
 
 /*---------------------------------------------------------------------------*/
 
@@ -46,31 +49,31 @@ impl Arrow {
         }
     }
 
-    fn turn(&mut self, grid: &[[i32; 30]; 30]) {
+    fn turn(&mut self, grid: &[[u8; GRID_SIZE]; GRID_SIZE]) {
         match self.direction {
             Direction::RIGHT => {
-                if grid[self.position.0 - 1][self.position.1] == 1 {
+                if grid[self.position.0 - 1][self.position.1] >= 1 {
                     self.direction = Direction::UP;
                 } else {
                     self.direction = Direction::DOWN;
                 }
             }
             Direction::DOWN => {
-                if grid[self.position.0][self.position.1 - 1] == 1 {
+                if grid[self.position.0][self.position.1 - 1] >= 1 {
                     self.direction = Direction::LEFT;
                 } else {
                     self.direction = Direction::RIGHT;
                 }
             }
             Direction::LEFT => {
-                if grid[self.position.0 - 1][self.position.1] == 1 {
+                if grid[self.position.0 - 1][self.position.1] >= 1 {
                     self.direction = Direction::UP;
                 } else {
                     self.direction = Direction::DOWN;
                 }
             }
             Direction::UP => {
-                if grid[self.position.0][self.position.1 - 1] == 1 {
+                if grid[self.position.0][self.position.1 - 1] >= 1 {
                     self.direction = Direction::LEFT;
                 } else {
                     self.direction = Direction::RIGHT;
@@ -80,25 +83,16 @@ impl Arrow {
         self.turns += 1;
     }
 
-    fn next(&self) -> Option<(usize, usize)> {
+    fn next(&self) -> (usize, usize) {
         let mut position = self.position;
+
         match self.direction {
             Direction::RIGHT => position.1 += 1,
             Direction::DOWN => position.0 += 1,
-            Direction::LEFT => {
-                if position.1 == 0 {
-                    return None;
-                }
-                position.1 -= 1
-            }
-            Direction::UP => {
-                if self.position.0 == 0 {
-                    return None;
-                }
-                position.0 -= 1;
-            }
+            Direction::LEFT => position.1 -= 1,
+            Direction::UP => position.0 -= 1,
         }
-        Some(position)
+        position
     }
 
     fn advance(&mut self) -> bool {
@@ -140,8 +134,7 @@ impl PartialEq for Arrow {
 
 /*---------------------------------------------------------------------------*/
 
-fn amount_sides(region: &Vec<Element>) -> u32 {
-    let mut grid = [[0; 30]; 30];
+fn prepare_grid(region: &Vec<Element>, grid: &mut [[u8; GRID_SIZE]; GRID_SIZE]) {
     for element in region.iter() {
         let position = ((element.x + 1) * 2, (element.y + 1) * 2);
 
@@ -183,23 +176,32 @@ fn amount_sides(region: &Vec<Element>) -> u32 {
             grid[position.0 + 1][position.1 + 1] = value;
         }
     }
+}
+
+/*---------------------------------------------------------------------------*/
+
+fn amount_sides(region: &Vec<Element>, grid: &mut [[u8; GRID_SIZE]; GRID_SIZE]) -> u32 {
     trace!("Grid for {:?}", region);
-    for i in 0..30 {
+    for i in 0..GRID_SIZE {
         trace!("{:?}", grid[i]);
     }
 
     let mut first_position = (0, 0);
-    for x in 0..30 {
-        for y in 0..30 {
+    for x in 0..GRID_SIZE {
+        for y in 0..GRID_SIZE {
             if grid[x][y] == 1 {
                 first_position = (x, y);
                 break;
             }
         }
     }
+    if first_position.0 == 0 && first_position.1 == 0 {
+        trace!("All paths were traversed");
+        return 0;
+    }
+
     let first_arrow = Arrow::new(first_position.0, first_position.1);
     let mut arrow = first_arrow.clone();
-    let mut next_position: (usize, usize);
 
     loop {
         trace!(
@@ -208,14 +210,7 @@ fn amount_sides(region: &Vec<Element>) -> u32 {
             arrow
         );
 
-        match arrow.next() {
-            Some(position) => next_position = position,
-            None => {
-                arrow.turn(&grid);
-                continue;
-            }
-        }
-
+        let next_position = arrow.next();
         if grid[next_position.0][next_position.1] == 0 {
             arrow.turn(&grid);
             continue;
@@ -224,7 +219,14 @@ fn amount_sides(region: &Vec<Element>) -> u32 {
         if arrow.turns != 0 && arrow == first_arrow {
             break;
         }
+        // Mark path that was traversed
+        grid[arrow.position.0][arrow.position.1] += 1;
         arrow.advance();
+    }
+
+    trace!("Grid for {:?}", region);
+    for i in 0..GRID_SIZE {
+        trace!("{:?}", grid[i]);
     }
 
     arrow.turns
@@ -383,10 +385,25 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     for region in regions.iter() {
         let area = region.1.len();
-        let sides = amount_sides(&region.1);
+        let mut sides = 0;
+        let mut counter = 0;
+        let mut grid = [[0; GRID_SIZE]; GRID_SIZE];
+        prepare_grid(&region.1, &mut grid);
+        loop {
+            let result = amount_sides(&region.1, &mut grid);
+            info!(
+                "[Iteration {}] Region: {} - Sides: {}",
+                counter, region.0, result,
+            );
+            counter += 1;
+            if result == 0 {
+                break;
+            }
+            sides += result;
+        }
         total += area * sides as usize;
         info!(
-            "Region: {} - Area: {} - Perimeter: {} - Price: {}",
+            "Region: {} - Area: {} - Sides: {} - Price: {}",
             region.0,
             area,
             sides,
