@@ -7,9 +7,9 @@ use advent_of_code_2024::common;
 /*---------------------------------------------------------------------------*/
 
 // const WIDE_LIMIT: i32 = 7;
-const WIDE_LIMIT: i32 = 101;
+const WIDE_LIMIT: i32 = 103;
 // const TALL_LIMIT: i32 = 11;
-const TALL_LIMIT: i32 = 103;
+const TALL_LIMIT: i32 = 101;
 
 /*---------------------------------------------------------------------------*/
 
@@ -124,7 +124,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Quadrant 2
     for x in 0..=WIDE_LIMIT / 2 - 1 {
-        for y in TALL_LIMIT / 2..TALL_LIMIT {
+        for y in TALL_LIMIT / 2 + 1..TALL_LIMIT {
             quadrants[1] += grid[x as usize][y as usize];
         }
     }
@@ -148,6 +148,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     for i in 1..quadrants.len() {
         total = total * quadrants[i];
     }
-    info!("Day X - Exercise Y. Result: {}", total);
+    info!("Day 14 - Exercise 2. Result: {}", total);
     Ok(())
 }
