@@ -14,8 +14,6 @@ struct Plant {
 
 #[derive(Debug, Copy, Clone)]
 struct Element {
-    x: usize,
-    y: usize,
     amount_links: usize,
 }
 
@@ -29,11 +27,7 @@ fn find_region(
 ) {
     let x = current_position.0;
     let y = current_position.1;
-    let mut element = Element {
-        x: x,
-        y: y,
-        amount_links: 4,
-    };
+    let mut element = Element { amount_links: 4 };
 
     if input[x][y].visited {
         return;
