@@ -342,7 +342,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             make_move(&mut warehouse, (rob_pos.0 + 1, rob_pos.1 + 1), 'v');
                             warehouse[rob_pos.0 as usize][rob_pos.1 as usize] = '.';
                             warehouse[rob_pos.0 as usize + 1][rob_pos.1 as usize] = '@';
-                            warehouse[rob_pos.0 as usize + 1][rob_pos.1 as usize] = '.';
+                            warehouse[rob_pos.0 as usize + 1][rob_pos.1 as usize + 1] = '.';
                             rob_pos.0 += 1;
                         }
                     }
@@ -353,8 +353,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                             make_move(&mut warehouse, (rob_pos.0 + 1, rob_pos.1), 'v');
                             make_move(&mut warehouse, (rob_pos.0 + 1, rob_pos.1 - 1), 'v');
                             warehouse[rob_pos.0 as usize][rob_pos.1 as usize] = '.';
-                            warehouse[rob_pos.0 as usize + 1][rob_pos.1 as usize] = '.';
                             warehouse[rob_pos.0 as usize + 1][rob_pos.1 as usize] = '@';
+                            warehouse[rob_pos.0 as usize + 1][rob_pos.1 as usize - 1] = '.';
                             rob_pos.0 += 1;
                         }
                     }
