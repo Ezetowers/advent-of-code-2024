@@ -371,6 +371,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
+    for x in 0..warehouse.len() {
+        for y in 0..warehouse[x].len() {
+            if warehouse[x][y] == '[' {
+                total += X_WEIGHT * x + Y_WEIGHT * y;
+            }
+        }
+    }
+
     info!("Day 15 - Exercise 2. Result: {}", total);
     Ok(())
 }
