@@ -15,7 +15,7 @@ fn try_move(warehouse: &Vec<Vec<char>>, pos: (i32, i32), direction: char) -> boo
         warehouse[pos.0 as usize][pos.1 as usize],
         pos
     );
-    let mut should_move = false;
+    let should_move;
     if direction == '^' {
         match warehouse[pos.0 as usize - 1][pos.1 as usize] {
             '[' => {
@@ -35,7 +35,7 @@ fn try_move(warehouse: &Vec<Vec<char>>, pos: (i32, i32), direction: char) -> boo
             _ => panic!("This should not happen"),
         }
     } else if direction == 'v' {
-        match warehouse[pos.0 as usize - 1][pos.1 as usize] {
+        match warehouse[pos.0 as usize + 1][pos.1 as usize] {
             '[' => {
                 should_move = try_move(warehouse, (pos.0 + 1, pos.1), direction)
                     && try_move(warehouse, (pos.0 + 1, pos.1 + 1), direction);
@@ -50,7 +50,7 @@ fn try_move(warehouse: &Vec<Vec<char>>, pos: (i32, i32), direction: char) -> boo
             '.' => {
                 should_move = true;
             }
-            _ => panic!("This should not happen"),
+            _ => panic!("This should not happen",),
         }
     } else {
         panic!("This should not happen");
@@ -232,11 +232,17 @@ fn main() -> Result<(), Box<dyn Error>> {
                         }
                         if warehouse[next_x as usize][next_y as usize] == '.' {
                             trace!(". found. Move boulders");
-                            warehouse[next_x as usize][rob_pos.1 as usize] = '.';
-                            for i in (next_y - rob_pos.1)..=0 {
-                                warehouse[next_x as usize][rob_pos.1 as usize - i as usize] =
-                                    warehouse[next_x as usize][rob_pos.1 as usize - i as usize - 1];
+                            for i in (rob_pos.1..=next_y).rev() {
+                                trace!(
+                                    "I: {} - Left: {} - Right: {}",
+                                    i,
+                                    warehouse[next_x as usize][i as usize],
+                                    warehouse[next_x as usize][i as usize - 1]
+                                );
+                                warehouse[next_x as usize][i as usize] =
+                                    warehouse[next_x as usize][i as usize - 1];
                             }
+                            warehouse[next_x as usize][rob_pos.1 as usize] = '.';
                             rob_pos.1 += 1;
                         }
                     }
@@ -263,9 +269,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                         }
                         if warehouse[next_x as usize][next_y as usize] == '.' {
                             trace!(". found. Move boulders");
-                            for i in (next_y - rob_pos.1)..=0 {
-                                warehouse[next_x as usize][rob_pos.1 as usize + i as usize] =
-                                    warehouse[next_x as usize][rob_pos.1 as usize + i as usize + 1];
+                            warehouse[next_x as usize][rob_pos.1 as usize] = '.';
+                            for i in next_y..=rob_pos.1 {
+                                warehouse[next_x as usize][i as usize] =
+                                    warehouse[next_x as usize][i as usize + 1];
                             }
                             rob_pos.1 -= 1;
                         }
@@ -327,24 +334,24 @@ fn main() -> Result<(), Box<dyn Error>> {
                         rob_pos.0 += 1;
                     }
                     '[' => {
-                        let should_move = try_move(&warehouse, (rob_pos.0 - 1, rob_pos.1), '^');
-                        try_move(&warehouse, (rob_pos.0 - 1, rob_pos.1 + 1), '^');
+                        let should_move = try_move(&warehouse, (rob_pos.0 + 1, rob_pos.1), 'v');
+                        try_move(&warehouse, (rob_pos.0 + 1, rob_pos.1 + 1), 'v');
 
                         if should_move {
-                            make_move(&mut warehouse, (rob_pos.0 - 1, rob_pos.1), '^');
-                            make_move(&mut warehouse, (rob_pos.0 - 1, rob_pos.1 + 1), '^');
+                            make_move(&mut warehouse, (rob_pos.0 + 1, rob_pos.1), 'v');
+                            make_move(&mut warehouse, (rob_pos.0 + 1, rob_pos.1 + 1), 'v');
                             warehouse[rob_pos.0 as usize][rob_pos.1 as usize] = '.';
-                            warehouse[rob_pos.0 as usize - 1][rob_pos.1 as usize] = '@';
-                            warehouse[rob_pos.0 as usize - 1][rob_pos.1 as usize] = '.';
+                            warehouse[rob_pos.0 as usize + 1][rob_pos.1 as usize] = '@';
+                            warehouse[rob_pos.0 as usize + 1][rob_pos.1 as usize] = '.';
                             rob_pos.0 += 1;
                         }
                     }
                     ']' => {
-                        let should_move = try_move(&warehouse, (rob_pos.0 - 1, rob_pos.1), '^')
-                            && try_move(&warehouse, (rob_pos.0 - 1, rob_pos.1 - 1), '^');
+                        let should_move = try_move(&warehouse, (rob_pos.0 + 1, rob_pos.1), 'v')
+                            && try_move(&warehouse, (rob_pos.0 + 1, rob_pos.1 - 1), 'v');
                         if should_move {
-                            make_move(&mut warehouse, (rob_pos.0 - 1, rob_pos.1), '^');
-                            make_move(&mut warehouse, (rob_pos.0 - 1, rob_pos.1 - 1), '^');
+                            make_move(&mut warehouse, (rob_pos.0 + 1, rob_pos.1), 'v');
+                            make_move(&mut warehouse, (rob_pos.0 + 1, rob_pos.1 - 1), 'v');
                             warehouse[rob_pos.0 as usize][rob_pos.1 as usize] = '.';
                             warehouse[rob_pos.0 as usize + 1][rob_pos.1 as usize] = '.';
                             warehouse[rob_pos.0 as usize + 1][rob_pos.1 as usize] = '@';
