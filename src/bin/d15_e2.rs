@@ -9,6 +9,68 @@ use advent_of_code_2024::common;
 const X_WEIGHT: usize = 100;
 const Y_WEIGHT: usize = 1;
 
+fn try_move(warehouse: &Vec<Vec<char>>, position: (i32, i32), direction: char) -> bool {
+    trace!(
+        "Element: {} - Position: {:?}",
+        warehouse[position.0 as usize][position.1 as usize],
+        position
+    );
+    let mut should_move = false;
+    if direction == '^' {
+        match warehouse[position.0 as usize - 1][position.1 as usize] {
+            '[' => {
+                should_move = try_move(warehouse, (position.0 - 1, position.1), direction)
+                    && try_move(warehouse, (position.0 - 1, position.1 + 1), direction);
+            }
+            ']' => {
+                should_move = try_move(warehouse, (position.0 - 1, position.1), direction)
+                    && try_move(warehouse, (position.0 - 1, position.1 - 1), direction);
+            }
+            '#' => {
+                should_move = false;
+            }
+            '.' => {
+                should_move = true;
+            }
+            _ => panic!("This should not happen"),
+        }
+    }
+
+    trace!(
+        "Element: {} - Position: {:?} - Should move: {}",
+        warehouse[position.0 as usize][position.1 as usize],
+        position,
+        should_move,
+    );
+    should_move
+}
+
+fn make_move(warehouse: &mut Vec<Vec<char>>, position: (i32, i32), direction: char) {
+    trace!(
+        "Element: {} - Position: {:?}",
+        warehouse[position.0 as usize][position.1 as usize],
+        position
+    );
+    if direction == '^' {
+        match warehouse[position.0 as usize - 1][position.1 as usize] {
+            '[' => {
+                make_move(warehouse, (position.0 - 1, position.1), direction);
+                make_move(warehouse, (position.0 - 1, position.1 + 1), direction);
+            }
+            ']' => {
+                make_move(warehouse, (position.0 - 1, position.1), direction);
+                make_move(warehouse, (position.0 - 1, position.1 - 1), direction);
+            }
+            '.' => {
+                warehouse[position.0 as usize - 1][position.1 as usize] =
+                    warehouse[position.0 as usize][position.1 as usize];
+            }
+            '#' => panic!("This should not happen"),
+            _ => panic!("This should not happen"),
+        }
+    }
+}
+
 /*---------------------------------------------------------------------------*/
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -167,6 +229,38 @@ fn main() -> Result<(), Box<dyn Error>> {
                         warehouse[robot_position.0 as usize - 1][robot_position.1 as usize] = '@';
                         robot_position.0 -= 1;
                     }
+                    '[' => {
+                        try_move(&warehouse, (robot_position.0 - 1, robot_position.1), '^');
+                        try_move(
+                            &warehouse,
+                            (robot_position.0 - 1, robot_position.1 + 1),
+                            '^',
+                        );
+                        panic!("Test");
+                    }
+
+                    ']' => {
+                        let should_move =
+                            try_move(&warehouse, (robot_position.0 - 1, robot_position.1), '^')
+                                && try_move(
+                                    &warehouse,
+                                    (robot_position.0 - 1, robot_position.1 - 1),
+                                    '^',
+                                );
+                        if should_move {
+                            make_move(
+                                &mut warehouse,
+                                (robot_position.0 - 1, robot_position.1),
+                                '^',
+                            );
+                            make_move(
+                                &mut warehouse,
+                                (robot_position.0 - 1, robot_position.1 - 1),
+                                '^',
+                            );
+                        }
+                        panic!("Test");
+                    }
                     'O' => {
                         let mut next_x: i32 = robot_position.0 - 1;
                         let next_y: i32 = robot_position.1;
@@ -196,6 +290,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                         warehouse[robot_position.0 as usize + 1][robot_position.1 as usize] = '@';
                         robot_position.0 += 1;
                     }
+                    '[' => todo!(),
+                    ']' => todo!(),
                     'O' => {
                         let mut next_x: i32 = robot_position.0 + 1;
                         let next_y: i32 = robot_position.1;
