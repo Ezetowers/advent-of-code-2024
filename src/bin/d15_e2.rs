@@ -6,6 +6,15 @@ use advent_of_code_2024::common;
 
 /*---------------------------------------------------------------------------*/
 
+// FIXME: There is a lot of duplicated code in this exercise, but I am not going to modify it
+// (at least not now) since I want to continue with the following exercises. Things that I
+// think can be modified to decrease the amount of code
+// * Right (>) and Left (<) movements are basically the same, the only thing that change is
+//  Y-axis, so I function can be created using as a parameter the sign of the increase/decrease
+//  in the Y-axis
+// * Same with the Up (^) and Down (^) positions, but in the X-Axis instead
+// Those changes should reduce the code in half
+
 const X_WEIGHT: usize = 100;
 const Y_WEIGHT: usize = 1;
 
