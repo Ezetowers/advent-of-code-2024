@@ -46,20 +46,25 @@ fn try_move(warehouse: &Vec<Vec<char>>, position: (i32, i32), direction: char) -
 }
 
 fn make_move(warehouse: &mut Vec<Vec<char>>, position: (i32, i32), direction: char) {
-    trace!(
-        "Element: {} - Position: {:?}",
-        warehouse[position.0 as usize][position.1 as usize],
-        position
-    );
+    let mut element = warehouse[position.0 as usize][position.1 as usize];
+    trace!("Element: {} - Position: {:?}", element, position);
     if direction == '^' {
         match warehouse[position.0 as usize - 1][position.1 as usize] {
             '[' => {
                 make_move(warehouse, (position.0 - 1, position.1), direction);
-                make_move(warehouse, (position.0 - 1, position.1 + 1), direction);
+                warehouse[position.0 as usize - 1][position.1 as usize] =
+                    warehouse[position.0 as usize][position.1 as usize];
+                if element == ']' {
+                    make_move(warehouse, (position.0 - 1, position.1 + 1), direction);
+                    warehouse[position.0 as usize - 1][position.1 as usize + 1] =
+                        warehouse[position.0 as usize][position.1 as usize + 1];
+                }
             }
             ']' => {
                 make_move(warehouse, (position.0 - 1, position.1), direction);
                 make_move(warehouse, (position.0 - 1, position.1 - 1), direction);
+                warehouse[position.0 as usize - 1][position.1 as usize] =
+                    warehouse[position.0 as usize][position.1 as usize];
             }
             '.' => {
                 warehouse[position.0 as usize - 1][position.1 as usize] =
@@ -258,6 +263,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                                 (robot_position.0 - 1, robot_position.1 - 1),
                                 '^',
                             );
+                        }
+
+                        for i in 0..warehouse.len() {
+                            trace!("{:?}", warehouse[i]);
                         }
                         panic!("Test");
                     }
