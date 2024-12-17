@@ -53,18 +53,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let mut warehouse: Vec<Vec<char>> = Vec::new();
-    let mut robot_position: (i32, i32) = (0, 0);
     for x in 0..old_warehouse.len() {
         let mut row: Vec<char> = Vec::new();
         for y in 0..old_warehouse.len() {
             if x == old_robot_position.0 as usize && y == old_robot_position.1 as usize {
                 row.push('@');
-                robot_position = (x as i32 * 2, y as i32 * 2);
                 row.push('.');
             } else {
                 if old_warehouse[x][y] == 'O' {
                     row.push('[');
-                    row.push('[');
+                    row.push(']');
                 } else {
                     row.push(old_warehouse[x][y]);
                     row.push(old_warehouse[x][y]);
@@ -75,24 +73,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     trace!("New Warehouse");
-    for i in 0..warehouse.len() {
-        trace!("{:?}", warehouse[i]);
-    }
-
-    trace!("Movements: {:?}", movements);
-    trace!("New robot initial position: {:?}", robot_position);
-
-    // NOTE: The warehouse is a square. Change this code to get actual
-    // dimensions of the warehouse if needed
+    let mut robot_position: (i32, i32) = (0, 0);
     for x in 0..warehouse.len() {
-        for y in 0..warehouse.len() {
-            if warehouse[x][y] == 'O' {
-                total += X_WEIGHT * x + Y_WEIGHT * y;
+        trace!("{:?}", warehouse[x]);
+        for y in 0..warehouse[x].len() {
+            if warehouse[x][y] == '@' {
+                robot_position = (x as i32, y as i32);
             }
         }
     }
 
-    panic!("TUVIEJA");
+    trace!("Movements: {:?}", movements);
+    trace!("New robot initial position: {:?}", robot_position);
 
     // Done with parsing, starting exercise
     let mut move_number = 0;
@@ -113,14 +105,18 @@ fn main() -> Result<(), Box<dyn Error>> {
                     '[' => {
                         let next_x: i32 = robot_position.0;
                         let mut next_y: i32 = robot_position.1 + 1;
-                        while warehouse[next_x as usize][next_y as usize] == 'O' {
-                            next_y = next_y + 1;
+                        while warehouse[next_x as usize][next_y as usize] == '[' {
+                            next_y = next_y + 2;
                         }
                         if warehouse[next_x as usize][next_y as usize] == '.' {
                             trace!(". found. Move boulders");
                             warehouse[next_x as usize][robot_position.1 as usize] = '.';
-                            warehouse[next_x as usize][robot_position.1 as usize + 1] = '@';
-                            warehouse[next_x as usize][next_y as usize] = 'O';
+                            for i in (next_y - robot_position.1)..=0 {
+                                warehouse[next_x as usize]
+                                    [robot_position.1 as usize - i as usize] = warehouse
+                                    [next_x as usize]
+                                    [robot_position.1 as usize - i as usize - 1];
+                            }
                             robot_position.1 += 1;
                         }
                     }
@@ -139,17 +135,20 @@ fn main() -> Result<(), Box<dyn Error>> {
                         warehouse[robot_position.0 as usize][robot_position.1 as usize - 1] = '@';
                         robot_position.1 -= 1;
                     }
-                    '[' => {
+                    ']' => {
                         let next_x: i32 = robot_position.0;
                         let mut next_y: i32 = robot_position.1 - 1;
-                        while warehouse[next_x as usize][next_y as usize] == 'O' {
-                            next_y = next_y - 1;
+                        while warehouse[next_x as usize][next_y as usize] == ']' {
+                            next_y = next_y - 2;
                         }
                         if warehouse[next_x as usize][next_y as usize] == '.' {
                             trace!(". found. Move boulders");
-                            warehouse[next_x as usize][robot_position.1 as usize] = '.';
-                            warehouse[next_x as usize][robot_position.1 as usize - 1] = '@';
-                            warehouse[next_x as usize][next_y as usize] = 'O';
+                            for i in (next_y - robot_position.1)..=0 {
+                                warehouse[next_x as usize]
+                                    [robot_position.1 as usize + i as usize] = warehouse
+                                    [next_x as usize]
+                                    [robot_position.1 as usize + i as usize + 1];
+                            }
                             robot_position.1 -= 1;
                         }
                     }
