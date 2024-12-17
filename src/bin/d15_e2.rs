@@ -11,7 +11,7 @@ const Y_WEIGHT: usize = 1;
 
 fn try_move(warehouse: &Vec<Vec<char>>, pos: (i32, i32), direction: char) -> bool {
     trace!(
-        "Element: {} - pos: {:?}",
+        "try_move: Element: {} - pos: {:?}",
         warehouse[pos.0 as usize][pos.1 as usize],
         pos
     );
@@ -32,7 +32,7 @@ fn try_move(warehouse: &Vec<Vec<char>>, pos: (i32, i32), direction: char) -> boo
             '.' => {
                 should_move = true;
             }
-            _ => panic!("This should not happen"),
+            _ => panic!("try_move: This should not happen"),
         }
     } else if direction == 'v' {
         match warehouse[pos.0 as usize + 1][pos.1 as usize] {
@@ -50,14 +50,14 @@ fn try_move(warehouse: &Vec<Vec<char>>, pos: (i32, i32), direction: char) -> boo
             '.' => {
                 should_move = true;
             }
-            _ => panic!("This should not happen",),
+            _ => panic!("try_move: This should not happen",),
         }
     } else {
-        panic!("This should not happen");
+        panic!("try_move: This should not happen");
     }
 
     trace!(
-        "Element: {} - pos: {:?} - Should move: {}",
+        "try_move: Element: {} - pos: {:?} - Should move: {}",
         warehouse[pos.0 as usize][pos.1 as usize],
         pos,
         should_move,
@@ -67,7 +67,7 @@ fn try_move(warehouse: &Vec<Vec<char>>, pos: (i32, i32), direction: char) -> boo
 
 fn make_move(warehouse: &mut Vec<Vec<char>>, pos: (i32, i32), direction: char) {
     let element = warehouse[pos.0 as usize][pos.1 as usize];
-    trace!("Element: {} - pos: {:?}", element, pos);
+    trace!("make_move: Element: {} - pos: {:?}", element, pos);
     if direction == '^' {
         match warehouse[pos.0 as usize - 1][pos.1 as usize] {
             '[' => {
@@ -94,8 +94,8 @@ fn make_move(warehouse: &mut Vec<Vec<char>>, pos: (i32, i32), direction: char) {
                 warehouse[pos.0 as usize - 1][pos.1 as usize] =
                     warehouse[pos.0 as usize][pos.1 as usize];
             }
-            '#' => panic!("This should not happen"),
-            _ => panic!("This should not happen"),
+            '#' => panic!("make_move: This should not happen"),
+            _ => panic!("make_move: This should not happen"),
         }
     } else if direction == 'v' {
         match warehouse[pos.0 as usize + 1][pos.1 as usize] {
@@ -123,11 +123,11 @@ fn make_move(warehouse: &mut Vec<Vec<char>>, pos: (i32, i32), direction: char) {
                 warehouse[pos.0 as usize + 1][pos.1 as usize] =
                     warehouse[pos.0 as usize][pos.1 as usize];
             }
-            '#' => panic!("This should not happen"),
-            _ => panic!("This should not happen"),
+            '#' => panic!("make_move: This should not happen"),
+            _ => panic!("make_move: This should not happen"),
         }
     } else {
-        panic!("This should not happen");
+        panic!("make_move: This should not happen");
     }
 }
 
@@ -269,11 +269,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                         }
                         if warehouse[next_x as usize][next_y as usize] == '.' {
                             trace!(". found. Move boulders");
-                            warehouse[next_x as usize][rob_pos.1 as usize] = '.';
                             for i in next_y..=rob_pos.1 {
                                 warehouse[next_x as usize][i as usize] =
                                     warehouse[next_x as usize][i as usize + 1];
                             }
+                            warehouse[next_x as usize][rob_pos.1 as usize] = '.';
                             rob_pos.1 -= 1;
                         }
                     }
@@ -293,8 +293,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                         rob_pos.0 -= 1;
                     }
                     '[' => {
-                        let should_move = try_move(&warehouse, (rob_pos.0 - 1, rob_pos.1), '^');
-                        try_move(&warehouse, (rob_pos.0 - 1, rob_pos.1 + 1), '^');
+                        let should_move = try_move(&warehouse, (rob_pos.0 - 1, rob_pos.1), '^')
+                            && try_move(&warehouse, (rob_pos.0 - 1, rob_pos.1 + 1), '^');
 
                         if should_move {
                             make_move(&mut warehouse, (rob_pos.0 - 1, rob_pos.1), '^');
@@ -334,8 +334,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                         rob_pos.0 += 1;
                     }
                     '[' => {
-                        let should_move = try_move(&warehouse, (rob_pos.0 + 1, rob_pos.1), 'v');
-                        try_move(&warehouse, (rob_pos.0 + 1, rob_pos.1 + 1), 'v');
+                        let should_move = try_move(&warehouse, (rob_pos.0 + 1, rob_pos.1), 'v')
+                            && try_move(&warehouse, (rob_pos.0 + 1, rob_pos.1 + 1), 'v');
 
                         if should_move {
                             make_move(&mut warehouse, (rob_pos.0 + 1, rob_pos.1), 'v');
