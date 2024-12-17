@@ -76,8 +76,7 @@ fn make_move(warehouse: &mut Vec<Vec<char>>, pos: (i32, i32), direction: char) {
                     warehouse[pos.0 as usize][pos.1 as usize];
                 if element == ']' {
                     make_move(warehouse, (pos.0 - 1, pos.1 + 1), direction);
-                    warehouse[pos.0 as usize - 1][pos.1 as usize + 1] =
-                        warehouse[pos.0 as usize][pos.1 as usize + 1];
+                    warehouse[pos.0 as usize - 1][pos.1 as usize + 1] = '.';
                 }
             }
             ']' => {
@@ -86,8 +85,7 @@ fn make_move(warehouse: &mut Vec<Vec<char>>, pos: (i32, i32), direction: char) {
                     warehouse[pos.0 as usize][pos.1 as usize];
                 if element == '[' {
                     make_move(warehouse, (pos.0 - 1, pos.1 - 1), direction);
-                    warehouse[pos.0 as usize - 1][pos.1 as usize - 1] =
-                        warehouse[pos.0 as usize][pos.1 as usize - 1];
+                    warehouse[pos.0 as usize - 1][pos.1 as usize - 1] = '.';
                 }
             }
             '.' => {
@@ -105,8 +103,7 @@ fn make_move(warehouse: &mut Vec<Vec<char>>, pos: (i32, i32), direction: char) {
                     warehouse[pos.0 as usize][pos.1 as usize];
                 if element == ']' {
                     make_move(warehouse, (pos.0 + 1, pos.1 + 1), direction);
-                    warehouse[pos.0 as usize + 1][pos.1 as usize + 1] =
-                        warehouse[pos.0 as usize][pos.1 as usize + 1];
+                    warehouse[pos.0 as usize + 1][pos.1 as usize + 1] = '.';
                 }
             }
             ']' => {
@@ -115,8 +112,7 @@ fn make_move(warehouse: &mut Vec<Vec<char>>, pos: (i32, i32), direction: char) {
                     warehouse[pos.0 as usize][pos.1 as usize];
                 if element == '[' {
                     make_move(warehouse, (pos.0 + 1, pos.1 - 1), direction);
-                    warehouse[pos.0 as usize + 1][pos.1 as usize - 1] =
-                        warehouse[pos.0 as usize][pos.1 as usize - 1];
+                    warehouse[pos.0 as usize + 1][pos.1 as usize - 1] = '.';
                 }
             }
             '.' => {
