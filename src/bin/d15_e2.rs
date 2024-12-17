@@ -171,7 +171,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     trace!("Warehouse before transformation");
     for i in 0..old_warehouse.len() {
-        trace!("{:?}", old_warehouse[i]);
+        let row: String = old_warehouse[i].clone().into_iter().collect();
+        trace!("{}", row);
     }
 
     let mut warehouse: Vec<Vec<char>> = Vec::new();
@@ -197,7 +198,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     trace!("New Warehouse");
     let mut rob_pos: (i32, i32) = (0, 0);
     for x in 0..warehouse.len() {
-        trace!("{:?}", warehouse[x]);
+        let row: String = warehouse[x].clone().into_iter().collect();
+        trace!("{}", row);
         for y in 0..warehouse[x].len() {
             if warehouse[x][y] == '@' {
                 rob_pos = (x as i32, y as i32);
@@ -368,7 +370,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         trace!("Robot pos after move: {:?}", rob_pos);
         trace!("Warehouse with move {}", move_number);
         for i in 0..warehouse.len() {
-            trace!("{:?}", warehouse[i]);
+            let row: String = warehouse[i].clone().into_iter().collect();
+            trace!("{}", row);
         }
     }
 
