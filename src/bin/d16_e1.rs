@@ -6,6 +6,10 @@ use advent_of_code_2024::common;
 
 /*---------------------------------------------------------------------------*/
 
+const TURN_WEIGHT: u32 = 1000;
+
+/*---------------------------------------------------------------------------*/
+
 #[derive(Debug, Default, PartialEq, Eq, Copy, Clone, Hash)]
 enum Direction {
     UP,
@@ -39,15 +43,25 @@ impl Maze {
         match self.direction {
             Direction::RIGHT => {
                 if self.grid[self.current_pos.0][self.current_pos.1 + 1] == '#' {
-                    if self.grid[self.current_pos.0 + 1][self.current_pos.1] == '#'
-                        && self.grid[self.current_pos.0 - 1][self.current_pos.1] == '#'
-                    {
+                    let up_continue = self.grid[self.current_pos.0 + 1][self.current_pos.1] == '#';
+                    let down_continue =
+                        self.grid[self.current_pos.0 - 1][self.current_pos.1] == '#';
+                    if up_continue && down_continue {
                         trace!(
                             "Current Position: {:?} - Direction: {:?}. Dead end found",
                             self.current_pos,
                             self.direction
                         );
                         return;
+                    }
+                    if up_continue && !down_continue {
+                        self.direction = Direction::UP;
+                        self.score += TURN_WEIGHT;
+                    }
+
+                    if !up_continue && down_continue {
+                        self.direction = Direction::DOWN;
+                        self.score += TURN_WEIGHT;
                     }
                 }
             }
