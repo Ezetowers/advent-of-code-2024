@@ -6,13 +6,67 @@ use advent_of_code_2024::common;
 
 /*---------------------------------------------------------------------------*/
 
+#[derive(Debug, Default, PartialEq, Eq, Copy, Clone, Hash)]
+enum Direction {
+    UP,
+    #[default]
+    RIGHT,
+    LEFT,
+    DOWN,
+}
+
+#[derive(Debug, Default, Clone)]
+struct Maze {
+    current_pos: (usize, usize),
+    end_pos: (usize, usize),
+    direction: Direction,
+    score: u32,
+    grid: Vec<Vec<char>>,
+}
+
+impl Maze {
+    fn new(start_pos: (usize, usize), end_pos: (usize, usize), grid: Vec<Vec<char>>) -> Self {
+        Self {
+            current_pos: start_pos,
+            end_pos,
+            grid: grid.clone(),
+            score: 0,
+            direction: Direction::RIGHT,
+        }
+    }
+
+    fn solve_maze(&mut self) {
+        match self.direction {
+            Direction::RIGHT => {
+                if self.grid[self.current_pos.0][self.current_pos.1 + 1] == '#' {
+                    if self.grid[self.current_pos.0 + 1][self.current_pos.1] == '#'
+                        && self.grid[self.current_pos.0 - 1][self.current_pos.1] == '#'
+                    {
+                        trace!(
+                            "Current Position: {:?} - Direction: {:?}. Dead end found",
+                            self.current_pos,
+                            self.direction
+                        );
+                        return;
+                    }
+                }
+            }
+            Direction::LEFT => todo!(),
+            Direction::UP => todo!(),
+            Direction::DOWN => todo!(),
+        }
+    }
+}
+
+/*---------------------------------------------------------------------------*/
+
 fn main() -> Result<(), Box<dyn Error>> {
     let _log2 = common::setup_logger();
     let reader = BufReader::new(common::setup_input()?);
     let mut total = 0;
     let mut maze: Vec<Vec<char>> = Vec::new();
-    let mut start: (u32, u32) = (0, 0);
-    let mut end: (u32, u32) = (0, 0);
+    let mut start: (usize, usize) = (0, 0);
+    let mut end: (usize, usize) = (0, 0);
 
     let mut x = 0;
     for line in reader.lines() {
@@ -39,6 +93,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     trace!("Start position: {:?}", start);
     trace!("End position: {:?}", end);
+
+    let mut maze = Maze::new(start, end, maze);
+    maze.solve_maze();
 
     info!("Day X - Exercise Y. Result: {}", total);
     Ok(())
