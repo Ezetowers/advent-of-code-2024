@@ -31,7 +31,7 @@ struct Maze {
     direction: Direction,
     score: u32,
     grid: Vec<Vec<char>>,
-    paths_weights: Vec<u32>,
+    shortest_path: u32,
 }
 
 impl Maze {
@@ -42,8 +42,8 @@ impl Maze {
             grid: grid.clone(),
             score: 0,
             direction: Direction::RIGHT,
-            paths_weights: Vec::new(),
             uuid: Uuid::new_v4(),
+            shortest_path: 99999999,
         }
     }
 
@@ -69,7 +69,7 @@ impl Maze {
                 trace!("{}", row);
             }
 
-            trace!(
+            debug!(
                 "[ID {}] Current position: {:?} - Direction: {:?} - Score: {} - Up: {} - Down: {} - Left: {} - Right: {}",
                 self.uuid,
                 self.current_pos,
@@ -90,12 +90,19 @@ impl Maze {
                 Direction::RIGHT => next_pos.1 += 1,
             }
             if next_pos.0 == self.end_pos.0 && next_pos.1 == self.end_pos.1 {
-                self.paths_weights.push(self.score);
-                trace!(
+                self.score += ADVANCE_WEIGHT;
+                if self.score < self.shortest_path {
+                    self.shortest_path = self.score;
+                }
+                debug!(
                     "[ID {}] End of maze found!. Final score: {}",
-                    self.uuid,
-                    self.score
+                    self.uuid, self.score
                 );
+                for i in 0..self.grid.len() {
+                    let row: String = self.grid[i].clone().into_iter().collect();
+                    debug!("{}", row);
+                }
+
                 break;
             }
 
@@ -105,16 +112,13 @@ impl Maze {
                 break;
             }
 
-            // Mark the current position as visited
-            self.grid[self.current_pos.0][self.current_pos.1] = '@';
-
             // Use case 3: We have only one option to continue
             if right_continue && (!up_continue && !down_continue && !left_continue) {
                 trace!("[ID {}] Only right direction found!", self.uuid);
                 if self.direction == Direction::RIGHT {
                     self.score += ADVANCE_WEIGHT;
                 } else {
-                    self.score += TURN_WEIGHT;
+                    self.score += TURN_WEIGHT + ADVANCE_WEIGHT;
                     self.direction = Direction::RIGHT;
                 }
                 self.grid[self.current_pos.0][self.current_pos.1] = self.dir_char();
@@ -127,7 +131,7 @@ impl Maze {
                 if self.direction == Direction::LEFT {
                     self.score += ADVANCE_WEIGHT;
                 } else {
-                    self.score += TURN_WEIGHT;
+                    self.score += TURN_WEIGHT + ADVANCE_WEIGHT;
                     self.direction = Direction::LEFT;
                 }
                 self.grid[self.current_pos.0][self.current_pos.1] = self.dir_char();
@@ -140,7 +144,7 @@ impl Maze {
                 if self.direction == Direction::DOWN {
                     self.score += ADVANCE_WEIGHT;
                 } else {
-                    self.score += TURN_WEIGHT;
+                    self.score += TURN_WEIGHT + ADVANCE_WEIGHT;
                     self.direction = Direction::DOWN;
                 }
                 self.grid[self.current_pos.0][self.current_pos.1] = self.dir_char();
@@ -152,7 +156,7 @@ impl Maze {
                 if self.direction == Direction::UP {
                     self.score += ADVANCE_WEIGHT;
                 } else {
-                    self.score += TURN_WEIGHT;
+                    self.score += TURN_WEIGHT + ADVANCE_WEIGHT;
                     self.direction = Direction::UP;
                 }
                 self.grid[self.current_pos.0][self.current_pos.1] = self.dir_char();
@@ -202,9 +206,9 @@ impl Maze {
                 self.grid[self.current_pos.0][self.current_pos.1 - 1] = WALL_CHAR;
             }
 
-            // for weight in maze.paths_weights.into_iter() {
-            //     self.paths_weights.push(weight);
-            // }
+            if maze.shortest_path < self.shortest_path {
+                self.shortest_path = maze.shortest_path;
+            }
         }
     }
 }
@@ -245,13 +249,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut maze = Maze::new(start, end, maze);
     maze.solve();
-    let mut shortest_path = maze.paths_weights[0];
-    for weight in maze.paths_weights.into_iter() {
-        if weight < shortest_path {
-            shortest_path = weight;
-        }
-    }
-
-    info!("Day X - Exercise Y. Result: {}", shortest_path);
+    info!("Day X - Exercise Y. Result: {}", maze.shortest_path);
     Ok(())
 }
