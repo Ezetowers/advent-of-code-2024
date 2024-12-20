@@ -31,6 +31,7 @@ struct Maze {
     score: u32,
     grid: Vec<Vec<char>>,
     shortest_path: u32,
+    iteration: u32,
 }
 
 impl Maze {
@@ -43,6 +44,7 @@ impl Maze {
             direction: Direction::RIGHT,
             uuid: Uuid::new_v4(),
             shortest_path: 99999999,
+            iteration: 0,
         }
     }
 
@@ -63,6 +65,7 @@ impl Maze {
 
     fn solve(&mut self) {
         loop {
+            self.iteration += 1;
             let up_continue = self.grid[self.current_pos.0 - 1][self.current_pos.1] == '.';
             let down_continue = self.grid[self.current_pos.0 + 1][self.current_pos.1] == '.';
             let left_continue = self.grid[self.current_pos.0][self.current_pos.1 - 1] == '.';
@@ -77,9 +80,10 @@ impl Maze {
             }
             self.grid[self.current_pos.0][self.current_pos.1] = previous_char;
 
-            trace!(
-                "[ID {}] Current position: {:?} - Direction: {:?} - Score: {} - Up: {} - Down: {} - Left: {} - Right: {}",
+            debug!(
+                "[ID {} - Iteration: {}] Current position: {:?} - Direction: {:?} - Score: {} - Up: {} - Down: {} - Left: {} - Right: {}",
                 self.uuid,
+                self.iteration,
                 self.current_pos,
                 self.direction,
                 self.score,
