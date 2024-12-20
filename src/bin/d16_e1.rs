@@ -10,7 +10,6 @@ use advent_of_code_2024::common;
 
 const TURN_WEIGHT: u32 = 1000;
 const ADVANCE_WEIGHT: u32 = 1;
-const WALL_CHAR: char = 'O';
 
 /*---------------------------------------------------------------------------*/
 
@@ -78,7 +77,7 @@ impl Maze {
             }
             self.grid[self.current_pos.0][self.current_pos.1] = previous_char;
 
-            debug!(
+            trace!(
                 "[ID {}] Current position: {:?} - Direction: {:?} - Score: {} - Up: {} - Down: {} - Left: {} - Right: {}",
                 self.uuid,
                 self.current_pos,
@@ -109,7 +108,7 @@ impl Maze {
                 );
                 for i in 0..self.grid.len() {
                     let row: String = self.grid[i].clone().into_iter().collect();
-                    debug!("{}", row);
+                    trace!("{}", row);
                 }
 
                 break;
@@ -173,219 +172,74 @@ impl Maze {
                 continue;
             }
 
-            // Use case 4: We have two options to continue. Create a new maze to continue one of
-            // the paths, marking the path not taken as already visited (@). Do the same for the
-            // other path (current solve function) and iterate to have only one option to visit
-            // in the next loop
+            // Use case 4: We have more than two options to continue. Create a new maze to continue one of
+            // the paths
             let mut maze: Maze;
 
-            if (right_continue && up_continue) && (!left_continue && !down_continue) {
+            if right_continue {
+                // Right
                 maze = self.clone();
                 maze.uuid = Uuid::new_v4();
-                maze.grid[self.current_pos.0][self.current_pos.1 + 1] = WALL_CHAR;
-                maze.solve();
-                self.set_shortest_path(maze.shortest_path);
-
-                maze = self.clone();
-                maze.uuid = Uuid::new_v4();
-                maze.grid[self.current_pos.0 - 1][self.current_pos.1] = WALL_CHAR;
-                maze.solve();
-                self.set_shortest_path(maze.shortest_path);
-
-                break;
-            }
-
-            if (right_continue && down_continue) && (!left_continue && !up_continue) {
-                maze = self.clone();
-                maze.uuid = Uuid::new_v4();
-                maze.grid[self.current_pos.0][self.current_pos.1 + 1] = WALL_CHAR;
-                maze.solve();
-                self.set_shortest_path(maze.shortest_path);
-
-                maze = self.clone();
-                maze.uuid = Uuid::new_v4();
-                maze.grid[self.current_pos.0 + 1][self.current_pos.1] = WALL_CHAR;
-                maze.solve();
-                self.set_shortest_path(maze.shortest_path);
-
-                break;
-            }
-
-            if (right_continue && left_continue) && (!down_continue && !up_continue) {
-                maze = self.clone();
-                maze.uuid = Uuid::new_v4();
-                maze.grid[self.current_pos.0][self.current_pos.1 + 1] = WALL_CHAR;
-                maze.solve();
-                self.set_shortest_path(maze.shortest_path);
-
-                maze = self.clone();
-                maze.uuid = Uuid::new_v4();
-                maze.grid[self.current_pos.0][self.current_pos.1 - 1] = WALL_CHAR;
-                maze.solve();
-                self.set_shortest_path(maze.shortest_path);
-
-                break;
-            }
-
-            if (up_continue && left_continue) && (!right_continue && !down_continue) {
-                maze = self.clone();
-                maze.uuid = Uuid::new_v4();
-                maze.grid[self.current_pos.0 - 1][self.current_pos.1] = WALL_CHAR;
-                maze.solve();
-                self.set_shortest_path(maze.shortest_path);
-
-                maze = self.clone();
-                maze.uuid = Uuid::new_v4();
-                maze.grid[self.current_pos.0][self.current_pos.1 - 1] = WALL_CHAR;
-                maze.solve();
-                self.set_shortest_path(maze.shortest_path);
-
-                break;
-            }
-
-            if (up_continue && down_continue) && (!left_continue && !right_continue) {
-                maze = self.clone();
-                maze.uuid = Uuid::new_v4();
-                maze.grid[self.current_pos.0 - 1][self.current_pos.1] = WALL_CHAR;
-                maze.solve();
-                self.set_shortest_path(maze.shortest_path);
-
-                maze = self.clone();
-                maze.uuid = Uuid::new_v4();
-                maze.grid[self.current_pos.0 + 1][self.current_pos.1] = WALL_CHAR;
-                maze.solve();
-                self.set_shortest_path(maze.shortest_path);
-
-                break;
-            }
-
-            if (down_continue && left_continue) && (!up_continue && !right_continue) {
-                maze = self.clone();
-                maze.uuid = Uuid::new_v4();
-                maze.grid[self.current_pos.0 + 1][self.current_pos.1] = WALL_CHAR;
-                maze.solve();
-                self.set_shortest_path(maze.shortest_path);
-
-                maze = self.clone();
-                maze.uuid = Uuid::new_v4();
-                maze.grid[self.current_pos.0][self.current_pos.1 - 1] = WALL_CHAR;
-                maze.solve();
-                self.set_shortest_path(maze.shortest_path);
-
-                break;
-            }
-
-            // Use case 5: we have reached a point where we have 3 possible paths
-            match self.direction {
-                Direction::RIGHT => {
-                    // Up
-                    maze = self.clone();
-                    maze.uuid = Uuid::new_v4();
-                    maze.grid[self.current_pos.0][self.current_pos.1 + 1] = WALL_CHAR;
-                    maze.grid[self.current_pos.0 + 1][self.current_pos.1] = WALL_CHAR;
-                    maze.solve();
-                    self.set_shortest_path(maze.shortest_path);
-
-                    // Down
-                    maze = self.clone();
-                    maze.uuid = Uuid::new_v4();
-                    maze.grid[self.current_pos.0][self.current_pos.1 + 1] = WALL_CHAR;
-                    maze.grid[self.current_pos.0 - 1][self.current_pos.1] = WALL_CHAR;
-                    maze.solve();
-                    self.set_shortest_path(maze.shortest_path);
-
-                    // Right
-                    maze = self.clone();
-                    maze.uuid = Uuid::new_v4();
-                    maze.grid[self.current_pos.0 - 1][self.current_pos.1] = WALL_CHAR;
-                    maze.grid[self.current_pos.0 + 1][self.current_pos.1] = WALL_CHAR;
-                    maze.solve();
-                    self.set_shortest_path(maze.shortest_path);
-
-                    break;
+                if maze.direction == Direction::RIGHT {
+                    maze.score += ADVANCE_WEIGHT;
+                } else {
+                    maze.score += TURN_WEIGHT + ADVANCE_WEIGHT;
+                    maze.direction = Direction::RIGHT;
                 }
-                Direction::LEFT => {
-                    // Up
-                    maze = self.clone();
-                    maze.uuid = Uuid::new_v4();
-                    maze.grid[self.current_pos.0][self.current_pos.1 - 1] = WALL_CHAR;
-                    maze.grid[self.current_pos.0 + 1][self.current_pos.1] = WALL_CHAR;
-                    maze.solve();
-                    self.set_shortest_path(maze.shortest_path);
-
-                    // Down
-                    maze = self.clone();
-                    maze.uuid = Uuid::new_v4();
-                    maze.grid[self.current_pos.0][self.current_pos.1 - 1] = WALL_CHAR;
-                    maze.grid[self.current_pos.0 - 1][self.current_pos.1] = WALL_CHAR;
-                    maze.solve();
-                    self.set_shortest_path(maze.shortest_path);
-
-                    // Left
-                    maze = self.clone();
-                    maze.uuid = Uuid::new_v4();
-                    maze.grid[self.current_pos.0 - 1][self.current_pos.1] = WALL_CHAR;
-                    maze.grid[self.current_pos.0 + 1][self.current_pos.1] = WALL_CHAR;
-                    maze.solve();
-                    self.set_shortest_path(maze.shortest_path);
-
-                    break;
-                }
-                Direction::UP => {
-                    // Left
-                    maze = self.clone();
-                    maze.uuid = Uuid::new_v4();
-                    maze.grid[self.current_pos.0 - 1][self.current_pos.1] = WALL_CHAR;
-                    maze.grid[self.current_pos.0][self.current_pos.1 + 1] = WALL_CHAR;
-                    maze.solve();
-                    self.set_shortest_path(maze.shortest_path);
-
-                    // Right
-                    maze = self.clone();
-                    maze.uuid = Uuid::new_v4();
-                    maze.grid[self.current_pos.0 - 1][self.current_pos.1] = WALL_CHAR;
-                    maze.grid[self.current_pos.0][self.current_pos.1 - 1] = WALL_CHAR;
-                    maze.solve();
-                    self.set_shortest_path(maze.shortest_path);
-
-                    // Up
-                    maze = self.clone();
-                    maze.uuid = Uuid::new_v4();
-                    maze.grid[self.current_pos.0][self.current_pos.1 - 1] = WALL_CHAR;
-                    maze.grid[self.current_pos.0][self.current_pos.1 + 1] = WALL_CHAR;
-                    maze.solve();
-                    self.set_shortest_path(maze.shortest_path);
-
-                    break;
-                }
-                Direction::DOWN => {
-                    // Left
-                    maze = self.clone();
-                    maze.uuid = Uuid::new_v4();
-                    maze.grid[self.current_pos.0 + 1][self.current_pos.1] = WALL_CHAR;
-                    maze.grid[self.current_pos.0][self.current_pos.1 + 1] = WALL_CHAR;
-                    maze.solve();
-                    self.set_shortest_path(maze.shortest_path);
-
-                    // Right
-                    maze = self.clone();
-                    maze.uuid = Uuid::new_v4();
-                    maze.grid[self.current_pos.0 + 1][self.current_pos.1] = WALL_CHAR;
-                    maze.grid[self.current_pos.0][self.current_pos.1 - 1] = WALL_CHAR;
-                    maze.solve();
-                    self.set_shortest_path(maze.shortest_path);
-
-                    // Down
-                    maze = self.clone();
-                    maze.uuid = Uuid::new_v4();
-                    maze.grid[self.current_pos.0][self.current_pos.1 - 1] = WALL_CHAR;
-                    maze.grid[self.current_pos.0][self.current_pos.1 + 1] = WALL_CHAR;
-                    maze.solve();
-                    self.set_shortest_path(maze.shortest_path);
-
-                    break;
-                }
+                maze.grid[maze.current_pos.0][maze.current_pos.1] = maze.dir_char();
+                maze.current_pos.1 += 1;
+                maze.solve();
+                self.set_shortest_path(maze.shortest_path);
             }
+
+            if up_continue {
+                // Up
+                maze = self.clone();
+                maze.uuid = Uuid::new_v4();
+                if maze.direction == Direction::UP {
+                    maze.score += ADVANCE_WEIGHT;
+                } else {
+                    maze.score += TURN_WEIGHT + ADVANCE_WEIGHT;
+                    maze.direction = Direction::UP;
+                }
+                maze.grid[maze.current_pos.0][maze.current_pos.1] = maze.dir_char();
+                maze.current_pos.0 -= 1;
+                maze.solve();
+                self.set_shortest_path(maze.shortest_path);
+            }
+
+            if down_continue {
+                // Down
+                maze = self.clone();
+                maze.uuid = Uuid::new_v4();
+                if maze.direction == Direction::DOWN {
+                    maze.score += ADVANCE_WEIGHT;
+                } else {
+                    maze.score += TURN_WEIGHT + ADVANCE_WEIGHT;
+                    maze.direction = Direction::DOWN;
+                }
+                maze.grid[maze.current_pos.0][maze.current_pos.1] = maze.dir_char();
+                maze.current_pos.0 += 1;
+                maze.solve();
+                self.set_shortest_path(maze.shortest_path);
+            }
+
+            if left_continue {
+                // Left
+                maze = self.clone();
+                maze.uuid = Uuid::new_v4();
+                if maze.direction == Direction::LEFT {
+                    maze.score += ADVANCE_WEIGHT;
+                } else {
+                    maze.score += TURN_WEIGHT + ADVANCE_WEIGHT;
+                    maze.direction = Direction::LEFT;
+                }
+                maze.grid[maze.current_pos.0][maze.current_pos.1] = maze.dir_char();
+                maze.current_pos.1 -= 1;
+                maze.solve();
+                self.set_shortest_path(maze.shortest_path);
+            }
+            break;
         }
     }
 }
