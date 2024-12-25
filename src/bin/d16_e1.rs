@@ -14,87 +14,15 @@ const UNDEFINED: u32 = 99999;
 
 /*---------------------------------------------------------------------------*/
 
-fn dijkstra(adj_matrix: &Vec<Vec<u32>>, start_index: usize) -> (Vec<u32>, Vec<usize>) {
-    // * dist is an array that contains the current distances from the source to other vertices, i.e. dist[u] is the current distance from the source to the vertex u.
-    // * The prev array contains pointers to previous-hop nodes on the shortest path from source to the given vertex (equivalently, it is the next-hop on the path from the given vertex to the source)
-    // * The code u ← vertex in Q with min dist[u], searches for the vertex u in the vertex set Q that has the least dist[u] value
-    // * Graph.Edges(u, v) returns the length of the edge joining (i.e. the distance between) the two neighbor-nodes u and v
-    // * The variable alt on line 14 is the length of the path from the source node to the neighbor node v if it were to go through u
-    //   * If this path is shorter than the current shortest path recorded for v, then the distance of v is updated to alt
-
-    // 1  function Dijkstra(Graph, source):
-    //  2
-    //  3      for each vertex v in Graph.Vertices:
-    //  4          dist[v] ← INFINITY
-    //  5          prev[v] ← UNDEFINED
-    //  6          add v to Q
-    //  7      dist[source] ← 0
-    //  8
-    //  9      while Q is not empty:
-    // 10          u ← vertex in Q with minimum dist[u]
-    // 11          remove u from Q
-    // 12
-    // 13          for each neighbor v of u still in Q:
-    // 14              alt ← dist[u] + Graph.Edges(u, v)
-    // 15              if alt < dist[v]:
-    // 16                  dist[v] ← alt
-    // 17                  prev[v] ← u
-    // 18
-    // 19      return dist[], prev[]
-
-    // Use Dijkstra to search minimum path (for now)
-    let node_counter = adj_matrix.len();
-    let mut dist: Vec<u32> = vec![INFINITY; node_counter];
-    let mut prev = vec![UNDEFINED as usize; node_counter];
-    let mut q: HashSet<usize> = HashSet::new();
-    for i in 0..node_counter {
-        q.insert(i);
-    }
-    dist[start_index as usize] = 0;
-    while q.len() != 0 {
-        // Get vertex in Q with min distance to source (there can be more than one)
-        let mut min_vertexes: Vec<usize> = Vec::new();
-        let mut min_distance = INFINITY;
-        for element in q.iter() {
-            if dist[*element] < min_distance {
-                min_distance = dist[*element];
-            }
-        }
-
-        for element in q.iter() {
-            if dist[*element] == min_distance {
-                min_vertexes.push(*element);
-            }
-        }
-
-        // Remove u from Q
-        for vertex in min_vertexes.iter() {
-            trace!("Removing {}", *vertex);
-            q.remove(vertex);
-        }
-
-        // for each neighbor v of u still in Q
-        for vertex in min_vertexes.iter() {
-            for i in 0..node_counter {
-                // Get neighbors
-                if adj_matrix[*vertex][i] != INFINITY {
-                    // Do not compute the vertex if not in Q
-                    if !q.contains(&i) {
-                        continue;
-                    }
-                    // alt ← dist[u] + length(u, v)
-                    let alt = dist[*vertex] + adj_matrix[*vertex][i];
-                    trace!("Alt from {} to  {}: {}", i, *vertex, alt);
-                    if alt < dist[i] {
-                        dist[i] = alt;
-                        prev[i] = *vertex;
-                    }
-                }
-            }
-        }
-    }
-    (dist, prev)
+#[derive(Debug, PartialEq, Eq, Hash, Copy, Clone)]
+struct State {
+    pos: (usize, usize),
+    direction: (i32, i32),
+    index: usize,
+    cost: u32,
 }
+
+/*---------------------------------------------------------------------------*/
 
 fn main() -> Result<(), Box<dyn Error>> {
     let _log2 = common::setup_logger();
@@ -105,7 +33,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut x = 0;
     let mut node_counter: usize = 0;
-    let mut coord_to_index: HashMap<(usize, usize), u32> = HashMap::new();
+    let mut coord_to_index: HashMap<(usize, usize), usize> = HashMap::new();
     let mut index_to_coord: HashMap<usize, (usize, usize)> = HashMap::new();
 
     for line in reader.lines() {
@@ -115,12 +43,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         let mut y = 0;
         for character in line.chars() {
             if character == '.' {
-                coord_to_index.insert((x, y), node_counter as u32);
+                coord_to_index.insert((x, y), node_counter);
                 index_to_coord.insert(node_counter, (x, y));
                 node_counter += 1;
             }
             if character == 'S' {
-                coord_to_index.insert((x, y), node_counter as u32);
+                coord_to_index.insert((x, y), node_counter);
                 index_to_coord.insert(node_counter, (x, y));
                 start_index = node_counter;
                 debug!("Start index: {}", start_index);
@@ -128,7 +56,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 maze[x][y] = '.';
             }
             if character == 'E' {
-                coord_to_index.insert((x, y), node_counter as u32);
+                coord_to_index.insert((x, y), node_counter);
                 index_to_coord.insert(node_counter, (x, y));
                 end_index = node_counter;
                 debug!("End index: {}", end_index);
@@ -161,31 +89,19 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let node_index = coord_to_index.entry((x, y)).or_default();
 
                 if up {
-                    adj_matrix[*node_index as usize][up_adj_index as usize] = ADVANCE_WEIGHT;
-                    if !down {
-                        adj_matrix[*node_index as usize][up_adj_index as usize] += TURN_WEIGHT;
-                    }
+                    adj_matrix[*node_index][up_adj_index] = ADVANCE_WEIGHT;
                 }
 
                 if down {
-                    adj_matrix[*node_index as usize][down_adj_index as usize] = ADVANCE_WEIGHT;
-                    if !up {
-                        adj_matrix[*node_index as usize][down_adj_index as usize] += TURN_WEIGHT;
-                    }
+                    adj_matrix[*node_index][down_adj_index] = ADVANCE_WEIGHT;
                 }
 
                 if right {
-                    adj_matrix[*node_index as usize][right_adj_index as usize] = ADVANCE_WEIGHT;
-                    if !left {
-                        adj_matrix[*node_index as usize][right_adj_index as usize] += TURN_WEIGHT;
-                    }
+                    adj_matrix[*node_index][right_adj_index] = ADVANCE_WEIGHT;
                 }
 
                 if left {
-                    adj_matrix[*node_index as usize][left_adj_index as usize] = ADVANCE_WEIGHT;
-                    if !right {
-                        adj_matrix[*node_index as usize][left_adj_index as usize] += TURN_WEIGHT;
-                    }
+                    adj_matrix[*node_index][left_adj_index] = ADVANCE_WEIGHT;
                 }
             }
         }
@@ -195,7 +111,133 @@ fn main() -> Result<(), Box<dyn Error>> {
         trace!("[Node adjacents {}] {:?}", x, adj_matrix[x]);
     }
 
-    let (dist, prev) = dijkstra(&adj_matrix, start_index);
+    // * dist is an array that contains the current distances from the source to other vertices, i.e. dist[u] is the current distance from the source to the vertex u.
+    // * The prev array contains pointers to previous-hop nodes on the shortest path from source to the given vertex (equivalently, it is the next-hop on the path from the given vertex to the source)
+    // * The code u ← vertex in Q with min dist[u], searches for the vertex u in the vertex set Q that has the least dist[u] value
+    // * Graph.Edges(u, v) returns the length of the edge joining (i.e. the distance between) the two neighbor-nodes u and v
+    // * The variable alt on line 14 is the length of the path from the source node to the neighbor node v if it were to go through u
+    //   * If this path is shorter than the current shortest path recorded for v, then the distance of v is updated to alt
+
+    // 1  function Dijkstra(Graph, source):
+    //  2
+    //  3      for each vertex v in Graph.Vertices:
+    //  4          dist[v] ← INFINITY
+    //  5          prev[v] ← UNDEFINED
+    //  6          add v to Q
+    //  7      dist[source] ← 0
+    //  8
+    //  9      while Q is not empty:
+    // 10          u ← vertex in Q with minimum dist[u]
+    // 11          remove u from Q
+    // 12
+    // 13          for each neighbor v of u still in Q:
+    // 14              alt ← dist[u] + Graph.Edges(u, v)
+    // 15              if alt < dist[v]:
+    // 16                  dist[v] ← alt
+    // 17                  prev[v] ← u
+    // 18
+    // 19      return dist[], prev[]
+    //
+
+    // Use Dijkstra to search minimum path (for now)
+    let node_counter = adj_matrix.len();
+    let mut dist: Vec<Option<State>> = vec![None; node_counter];
+    let mut prev = vec![UNDEFINED as usize; node_counter];
+    let mut q: HashSet<usize> = HashSet::new();
+    for i in 0..node_counter {
+        q.insert(i);
+    }
+    dist[start_index as usize] = Some(State {
+        pos: index_to_coord[&start_index],
+        index: start_index,
+        direction: (0, 1),
+        cost: 0,
+    });
+
+    while q.len() != 0 {
+        // Get vertex in Q with min distance to source (there can be more than one)
+        let mut min_vertexes: Vec<State> = Vec::new();
+        let mut min_distance = INFINITY;
+        for element in q.iter() {
+            if let Some(state) = &dist[*element] {
+                if state.cost < min_distance {
+                    min_distance = state.cost;
+                }
+            }
+        }
+
+        for element in q.iter() {
+            if let Some(state) = &dist[*element] {
+                if state.cost == min_distance {
+                    min_vertexes.push(state.clone());
+                }
+            }
+        }
+
+        // Remove u from Q
+        for vertex in min_vertexes.iter() {
+            trace!("Removing {}", vertex.index);
+            q.remove(&vertex.index);
+        }
+
+        // for each neighbor v of u still in Q
+        for vertex in min_vertexes.iter() {
+            for i in 0..node_counter {
+                // Get neighbors
+                if adj_matrix[vertex.index][i] != INFINITY {
+                    // Do not compute the vertex if not in Q
+                    if !q.contains(&i) {
+                        continue;
+                    }
+                    // alt ← dist[u] + length(u, v)
+                    // let alt = dist[*vertex] + adj_matrix[*vertex][i];
+                    //
+                    // NOTE: This is where regular dijkstra does not work. We need to know from
+                    // from which is the direction that we had and which is direction where we are
+                    // heading
+                    let mut alt = vertex.cost + ADVANCE_WEIGHT;
+                    let new_pos = (
+                        vertex.pos.0 as i32 + vertex.direction.0,
+                        vertex.pos.1 as i32 + vertex.direction.1,
+                    );
+                    let adj_pos = index_to_coord[&i];
+
+                    let mut new_direction = vertex.direction;
+                    if new_pos.0 as usize != adj_pos.0 || new_pos.1 as usize != adj_pos.1 {
+                        // The adjacent node does not match our direction
+                        alt = vertex.cost + TURN_WEIGHT;
+                    } else {
+                        new_direction = (
+                            adj_pos.0 as i32 - vertex.pos.0 as i32,
+                            adj_pos.1 as i32 - vertex.pos.1 as i32,
+                        );
+                    }
+
+                    // trace!("Alt from {} to  {}: {}", i, *vertex, alt);
+                    match dist[i] {
+                        Some(mut state) => {
+                            if alt < state.cost {
+                                state.cost = alt;
+                                state.direction = new_direction;
+                                dist[i] = Some(state.clone());
+                                prev[i] = vertex.index;
+                            }
+                        }
+                        None => {
+                            let state = State {
+                                cost: alt,
+                                direction: new_direction,
+                                index: i,
+                                pos: adj_pos,
+                            };
+                            dist[i] = Some(state);
+                            prev[i] = vertex.index;
+                        }
+                    };
+                }
+            }
+        }
+    }
 
     // Draw shortest path
     maze[index_to_coord[&start_index].0][index_to_coord[&start_index].1] = 'S';
@@ -204,7 +246,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut current_index = end_index;
     while prev[current_index] != UNDEFINED as usize {
         let cell = index_to_coord[&current_index];
-        debug!("Cell: {:?}", cell);
+        debug!(
+            "Cell: {:?} - Distance: {}",
+            (cell.0 + 1, cell.1 + 1),
+            dist[current_index].unwrap().cost,
+        );
         maze[cell.0][cell.1] = '*';
         current_index = prev[current_index];
     }
@@ -215,6 +261,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         debug!("{}", row);
     }
 
-    info!("Day X - Exercise Y. Result: {}", dist[end_index as usize]);
+    info!("Day X - Exercise Y. Result: {:?}", dist[end_index as usize]);
     Ok(())
 }
