@@ -1,9 +1,7 @@
 use log::*;
+use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::io::{BufRead, BufReader};
-
-use petgraph::graph::Graph;
-use std::collections::{HashMap, HashSet};
 
 use advent_of_code_2024::common;
 
@@ -19,12 +17,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let _log2 = common::setup_logger();
     let reader = BufReader::new(common::setup_input()?);
     let mut maze: Vec<Vec<char>> = Vec::new();
-    let mut start_index: u32 = 0;
-    let mut end_index: u32 = 0;
+    let mut start_index: usize = 0;
+    let mut end_index: usize = 0;
 
     let mut x = 0;
     let mut node_counter: usize = 0;
     let mut coord_to_index: HashMap<(usize, usize), u32> = HashMap::new();
+    let mut index_to_coord: HashMap<usize, (usize, usize)> = HashMap::new();
 
     for line in reader.lines() {
         let line = line?;
@@ -34,19 +33,24 @@ fn main() -> Result<(), Box<dyn Error>> {
         for character in line.chars() {
             if character == '.' {
                 coord_to_index.insert((x, y), node_counter as u32);
+                index_to_coord.insert(node_counter, (x, y));
                 node_counter += 1;
             }
             if character == 'S' {
                 coord_to_index.insert((x, y), node_counter as u32);
-                start_index = node_counter as u32;
+                index_to_coord.insert(node_counter, (x, y));
+                start_index = node_counter;
                 debug!("Start index: {}", start_index);
                 node_counter += 1;
+                maze[x][y] = '.';
             }
             if character == 'E' {
                 coord_to_index.insert((x, y), node_counter as u32);
-                end_index = node_counter as u32;
+                index_to_coord.insert(node_counter, (x, y));
+                end_index = node_counter;
                 debug!("End index: {}", end_index);
                 node_counter += 1;
+                maze[x][y] = '.';
             }
             y = y + 1;
         }
@@ -101,6 +105,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
+    for x in 0..adj_matrix.len() {
+        trace!("[Node adjacents {}] {:?}", x, adj_matrix[x]);
+    }
+
     // * dist is an array that contains the current distances from the source to other vertices, i.e. dist[u] is the current distance from the source to the vertex u.
     // * The prev array contains pointers to previous-hop nodes on the shortest path from source to the given vertex (equivalently, it is the next-hop on the path from the given vertex to the source)
     // * The code u ← vertex in Q with min dist[u], searches for the vertex u in the vertex set Q that has the least dist[u] value
@@ -130,7 +138,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Use Dijkstra to search minimum path (for now)
     let mut dist: Vec<u32> = vec![INFINITY; node_counter];
-    let mut prev: Vec<usize> = Vec::new();
+    let mut prev = vec![INFINITY as usize; node_counter];
     let mut q: HashSet<usize> = HashSet::new();
     for i in 0..node_counter {
         q.insert(i);
@@ -162,20 +170,42 @@ fn main() -> Result<(), Box<dyn Error>> {
         for vertex in min_vertexes.iter() {
             for i in 0..node_counter {
                 // Get neighbors
-                if adj_matrix[start_index as usize][i] != INFINITY {
+                if adj_matrix[*vertex][i] != INFINITY {
+                    // Do not compute the vertex if not in Q
+                    if !q.contains(&i) {
+                        continue;
+                    }
                     // alt ← dist[u] + length(u, v)
-                    let alt = dist[*vertex] + adj_matrix[start_index as usize][i];
-                    trace!("Alt: {}", alt);
+                    let alt = dist[*vertex] + adj_matrix[*vertex][i];
+                    trace!("Alt from {} to  {}: {}", i, *vertex, alt);
                     if alt < dist[i] {
                         dist[i] = alt;
-                        prev.push(i);
+                        prev[i] = *vertex;
                     }
                 }
             }
         }
     }
 
-    info!("Day X - Exercise Y. Result: {}", 0);
+    // Draw shortest path
+    maze[index_to_coord[&start_index].0][index_to_coord[&start_index].1] = 'S';
+    maze[index_to_coord[&end_index].0][index_to_coord[&end_index].1] = 'E';
+
+    let mut current_index = end_index;
+    while prev[current_index] != INFINITY as usize {
+        let cell = index_to_coord[&current_index];
+        debug!("Cell: {:?}", cell);
+        maze[cell.0][cell.1] = '*';
+        current_index = prev[current_index];
+    }
+
+    debug!("Maze!");
+    for i in 0..maze.len() {
+        let row: String = maze[i].clone().into_iter().collect();
+        debug!("{}", row);
+    }
+
+    info!("Day X - Exercise Y. Result: {}", dist[end_index as usize]);
     info!("{:?}", dist);
     Ok(())
 }
