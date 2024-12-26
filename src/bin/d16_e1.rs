@@ -176,12 +176,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Remove u from Q
         for vertex in min_vertexes.iter() {
-            trace!("Removing {}", vertex.index);
+            trace!("Removing {:?}", (vertex.pos.0 + 1, vertex.pos.1 + 1));
             q.remove(&vertex.index);
         }
 
         // for each neighbor v of u still in Q
         for vertex in min_vertexes.iter() {
+            trace!("LALA: {:#?}", vertex);
             for i in 0..node_counter {
                 // Get neighbors
                 if adj_matrix[vertex.index][i] != INFINITY {
@@ -205,15 +206,20 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let mut new_direction = vertex.direction;
                     if new_pos.0 as usize != adj_pos.0 || new_pos.1 as usize != adj_pos.1 {
                         // The adjacent node does not match our direction
-                        alt = vertex.cost + TURN_WEIGHT;
-                    } else {
+                        alt = vertex.cost + TURN_WEIGHT + ADVANCE_WEIGHT;
                         new_direction = (
                             adj_pos.0 as i32 - vertex.pos.0 as i32,
                             adj_pos.1 as i32 - vertex.pos.1 as i32,
                         );
                     }
 
-                    // trace!("Alt from {} to  {}: {}", i, *vertex, alt);
+                    trace!(
+                        "Alt from {:?} to  {:?}: {}. Vertex dir: {:?}",
+                        (vertex.pos.0 + 1, vertex.pos.1 + 1),
+                        (adj_pos.0 + 1, adj_pos.1 + 1),
+                        alt,
+                        vertex.direction,
+                    );
                     match dist[i] {
                         Some(mut state) => {
                             if alt < state.cost {
