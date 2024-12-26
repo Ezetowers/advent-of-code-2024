@@ -184,6 +184,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         for vertex in min_vertexes.iter() {
             trace!("LALA: {:#?}", vertex);
             for i in 0..node_counter {
+                trace!("LALA: {:#?}", vertex);
                 // Get neighbors
                 if adj_matrix[vertex.index][i] != INFINITY {
                     // Do not compute the vertex if not in Q
