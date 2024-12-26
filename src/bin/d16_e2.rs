@@ -2,7 +2,7 @@ use log::*;
 use std::error::Error;
 use std::io::{BufRead, BufReader};
 
-use pathfinding::prelude::dijkstra;
+use pathfinding::prelude::yen;
 
 use advent_of_code_2024::common;
 
@@ -55,7 +55,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         x = x + 1;
     }
 
-    let result = dijkstra(
+    let results = yen(
         &start_state,
         |state| {
             let mut result: Vec<(State, u32)> = Vec::new();
@@ -139,11 +139,36 @@ fn main() -> Result<(), Box<dyn Error>> {
             result
         },
         |state| state.pos == end_state.pos,
+        100,
     );
 
-    match result {
-        Some(result) => info!("Day 16 - Exercise 1. Result: {:#?}", result.1),
-        None => info!("Day 16 - Exercise 1. Result: None"),
-    };
+    for result in results.iter() {
+        debug!("Solution cost: {}", result.1);
+    }
+
+    let min_cost = results[0].1;
+    for result in results.iter() {
+        if result.1 != min_cost {
+            break;
+        }
+        for state in result.0.iter() {
+            maze[state.pos.0][state.pos.1] = 'O';
+        }
+    }
+
+    let mut counter = 0;
+    for x in 0..maze.len() {
+        for y in 0..maze[x].len() {
+            if maze[x][y] == 'O' {
+                counter += 1;
+            }
+        }
+    }
+    for i in 0..maze.len() {
+        let row: String = maze[i].clone().into_iter().collect();
+        debug!("{}", row);
+    }
+
+    info!("Day 16 - Exercise 2. Result: {}", counter);
     Ok(())
 }
