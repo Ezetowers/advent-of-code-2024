@@ -19,7 +19,7 @@ impl Computer {
         }
     }
 
-    fn execute_program(program: Vec<i32>) -> Vec<i32> {
+    fn execute_program(&mut self, program: &Vec<i32>) -> Vec<i32> {
         let result: Vec<i32> = Vec::new();
         result
     }
@@ -30,7 +30,6 @@ impl Computer {
 fn main() -> Result<(), Box<dyn Error>> {
     let _log2 = common::setup_logger();
     let reader = BufReader::new(common::setup_input()?);
-    let mut total = 0;
 
     // File format
     //   Register A: <number>
@@ -59,8 +58,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         .map(|x| x.parse::<i32>().unwrap_or(0))
         .collect();
 
+    let mut computer = Computer::new(reg_a, reg_b, reg_c);
+    let result = computer.execute_program(&program);
+
     trace!("Program. String: {} - Array: {:?}", program_string, program);
 
-    info!("Day X - Exercise Y. Result: {}", total);
+    info!("Day X - Exercise Y. Result: {:?}", result);
     Ok(())
 }
