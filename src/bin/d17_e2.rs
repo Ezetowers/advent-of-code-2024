@@ -1,33 +1,35 @@
 use log::*;
 use std::error::Error;
 use std::io::{BufRead, BufReader};
+use std::thread;
 
 use advent_of_code_2024::common;
 
 #[derive(Debug)]
 struct Computer {
+    thread_num: u64,
     reg_a: u64,
     reg_b: u64,
     reg_c: u64,
 }
 
 impl Computer {
-    fn new(reg_a: u64, reg_b: u64, reg_c: u64) -> Computer {
+    fn new(thread_num: u64, reg_a: u64, reg_b: u64, reg_c: u64) -> Computer {
         Self {
+            thread_num,
             reg_a,
             reg_b,
             reg_c,
         }
     }
 
-    fn execute_program(&mut self, program: &Vec<u64>) -> u64 {
+    fn execute_program(&mut self, program: &Vec<u64>, base: u64, multiplier: u64) -> u64 {
         let mut self_found = false;
-        let base = 11784601076;
         let mut counter = 0;
         while !self_found {
-            let reg_a = base + counter * 12750684160 / 16;
+            let reg_a = base + counter * multiplier;
             if reg_a % 10000000 == 0 {
-                info!("Current Iteration: {}", reg_a);
+                debug!("Current Iteration: {}", reg_a);
             }
             let mut output: Vec<u64> = Vec::new();
             let mut ip = 0;
@@ -87,26 +89,29 @@ impl Computer {
 
             // Sanity check
             debug!("Computer: {:?} - Current output: {:?}", self, output);
-            if output.len() > 12 {
+            if output.len() > 10 {
                 info!(
-                    "Watch out!! - Current Iteration: {} - Computer: {:?} - Output: {:?}",
-                    reg_a, self, output,
+                    "[Thread num {}] Watch out!! - Current Iteration: {} - Output: {:?} - Len: {} - {:?}",
+                    self.thread_num,
+                    reg_a,
+                    output,
+                    output.len(),
+                    self,
                 );
             }
 
-            if output.len() != program.len() {
-                continue;
-            }
-
-            for i in 0..output.len() {
-                if output[i] != program[i] {
-                    self_found = false;
-                    break;
+            self_found = output.len() == program.len();
+            if self_found {
+                for i in 0..output.len() {
+                    if output[i] != program[i] {
+                        self_found = false;
+                        break;
+                    }
                 }
             }
             counter += 1;
         }
-        base + counter * 12750684160
+        base + counter * multiplier
     }
 
     fn combo_operand(&self, operand: u64) -> u64 {
@@ -148,20 +153,42 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     lines_it.next();
 
-    let program_string = lines_it.next().unwrap()?.split(':').collect::<Vec<_>>()[1].to_string();
-    let program: Vec<u64> = program_string
-        .trim()
-        .split(',')
-        .map(|x| x.parse::<u64>().unwrap_or(0))
-        .collect();
+    // let program_string = lines_it.next().unwrap()?.split(':').collect::<Vec<_>>()[1].to_string();
+    let max_number: u64 = 69225300431614;
+    // thread::scope(|s| {
+    let mut join_handlers = Vec::new();
+    for i in 0..10 {
+        let handle = move |x: u64, some_program_string: &str| {
+            let base = max_number / 10 * x;
+            let program: Vec<u64> = some_program_string
+                .trim()
+                .split(',')
+                .map(|x| x.parse::<u64>().unwrap_or(0))
+                .collect();
+            let mut computer = Computer::new(i, reg_a, reg_b, reg_c);
+            computer.execute_program(&program, base, 1)
+        };
 
-    let mut computer = Computer::new(reg_a, reg_b, reg_c);
-    trace!("Program. String: {} - Array: {:?}", program_string, program);
+        join_handlers.push(thread::spawn(move || {
+            handle(i, "2,4,1,2,7,5,1,3,4,4,5,5,0,3,3,0")
+        }));
+    }
 
-    let result = computer.execute_program(&program);
-    info!(
-        "Day X - Exercise Y. Computer: {:?} - Result: {}",
-        computer, result
-    );
+    for handler in join_handlers.into_iter() {
+        handler.join().unwrap();
+    }
+    // });
+
+    // let handlers = Vec::new();
+    // for i in 0..10 {
+    //     handlers.push(thread::spawn(move || {
+    //         let mut computer = Computer::new(reg_a, reg_b, reg_c);
+    //         trace!("Program. String: {} - Array: {:?}", program_string, program);
+    //         computer.execute_program(&program, 0, 1)
+    //     });
+    // }
+
+    // let result = computer.execute_program(&program, 0, 1);
+    // info!("Day 17 - Exercise 2. {:?} - Result: {}", computer, result);
     Ok(())
 }
