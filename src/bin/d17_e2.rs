@@ -23,13 +23,16 @@ impl Computer {
         }
     }
 
-    fn execute_program(&mut self, program: &Vec<u64>, base: u64, multiplier: u64) -> u64 {
+    fn execute_program(&mut self, program: &Vec<u64>, base: u64, max: u64, multiplier: u64) -> u64 {
         let mut self_found = false;
         let mut counter = 0;
         while !self_found {
             let reg_a = base + counter * multiplier;
             if reg_a % 10000000 == 0 {
                 debug!("Current Iteration: {}", reg_a);
+            }
+            if reg_a > max {
+                break;
             }
             let mut output: Vec<u64> = Vec::new();
             let mut ip = 0;
@@ -89,10 +92,13 @@ impl Computer {
 
             // Sanity check
             debug!("Computer: {:?} - Current output: {:?}", self, output);
-            if output.len() > 10 {
+            if output.len() > 9 {
                 info!(
-                    "[Thread num {}] Watch out!! - Current Iteration: {} - Output: {:?} - Len: {} - {:?}",
+                    "[Thread num {}][Index {}/{} - Pct: {:.2}%] Watch out!! - Iteration: {} - Output: {:?} - Len: {} - {:?}",
                     self.thread_num,
+                    reg_a - base,
+                    max - base,
+                    (reg_a - base) as f64 / (max-base) as f64 * 100.0,
                     reg_a,
                     output,
                     output.len(),
@@ -154,19 +160,20 @@ fn main() -> Result<(), Box<dyn Error>> {
     lines_it.next();
 
     // let program_string = lines_it.next().unwrap()?.split(':').collect::<Vec<_>>()[1].to_string();
-    let max_number: u64 = 69225300431614;
+    let max_number: u64 = 692253004000;
     // thread::scope(|s| {
     let mut join_handlers = Vec::new();
     for i in 0..10 {
         let handle = move |x: u64, some_program_string: &str| {
-            let base = max_number / 10 * x;
+            let left_interval = max_number / 10 * x;
+            let right_interval = max_number / 10 * (x + 1);
             let program: Vec<u64> = some_program_string
                 .trim()
                 .split(',')
                 .map(|x| x.parse::<u64>().unwrap_or(0))
                 .collect();
             let mut computer = Computer::new(i, reg_a, reg_b, reg_c);
-            computer.execute_program(&program, base, 1)
+            computer.execute_program(&program, left_interval, right_interval, 1)
         };
 
         join_handlers.push(thread::spawn(move || {
