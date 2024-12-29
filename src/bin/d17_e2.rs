@@ -31,9 +31,9 @@ impl Computer {
             if reg_a % 10000000 == 0 {
                 debug!("Current Iteration: {}", reg_a);
             }
-            if reg_a > max {
-                break;
-            }
+            // if reg_a > max {
+            //     break;
+            // }
             let mut output: Vec<u64> = Vec::new();
             let mut ip = 0;
             self.reg_a = reg_a;
@@ -92,7 +92,7 @@ impl Computer {
 
             // Sanity check
             debug!("Computer: {:?} - Current output: {:?}", self, output);
-            if output.len() > 9 {
+            if output.len() > 10 {
                 info!(
                     "[Thread num {}][Index {}/{} - Pct: {:.2}%] Watch out!! - Iteration: {} - Output: {:?} - Len: {} - {:?}",
                     self.thread_num,
@@ -160,13 +160,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     lines_it.next();
 
     // let program_string = lines_it.next().unwrap()?.split(':').collect::<Vec<_>>()[1].to_string();
-    let max_number: u64 = 692253004000;
+    let min_number: u64 = 35184372088832;
+    let max_number: u64 = 281474976710655;
     // thread::scope(|s| {
     let mut join_handlers = Vec::new();
     for i in 0..10 {
         let handle = move |x: u64, some_program_string: &str| {
-            let left_interval = max_number / 10 * x;
-            let right_interval = max_number / 10 * (x + 1);
+            let left_interval = min_number + (max_number - min_number) / 10 * x;
+            let right_interval = min_number + (max_number - min_number) / 10 * (x + 1);
             let program: Vec<u64> = some_program_string
                 .trim()
                 .split(',')
